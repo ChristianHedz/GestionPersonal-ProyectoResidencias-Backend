@@ -2,11 +2,16 @@ package com.chris.gestionpersonal.models.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.Collection;
 import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
 @Entity
-public class Employee {
+public class Employee implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,11 +21,43 @@ public class Employee {
     private String qrCode;
     private String photo;
     private String password;
-    @OneToOne(cascade = CascadeType.ALL,fetch =  FetchType.EAGER)
+    @ManyToOne
+    @JoinColumn(name = "status_id",nullable = false)
     private Status status;
-    @OneToOne(cascade = CascadeType.ALL,fetch =  FetchType.EAGER)
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
     @OneToMany(cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
     private List<Assists> assists;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
 }
