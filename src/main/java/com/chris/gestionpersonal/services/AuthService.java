@@ -5,7 +5,6 @@ import com.chris.gestionpersonal.Repositories.TokenRepository;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.EmployeeMapper;
 import com.chris.gestionpersonal.models.dto.AuthResponse;
-import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.LoginDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
@@ -39,12 +38,18 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("Employee",EMAIL, loginDTO.getEmail()));
         String jwt = jwtService.generateToken(employee,generateExtraClaims(employee));
         saveToken(jwt,employee);
-        return new AuthResponse(jwt);
+        AuthResponse authResponse = employeeMapper.employeeToAuthResponse(employee);
+        authResponse.setToken(jwt);
+        return authResponse;
     }
 
-    public EmployeeDTO register(RegisterDTO registerDTO) {
+    public AuthResponse register(RegisterDTO registerDTO) {
         Employee employee = employeeService.register(registerDTO);
-        return employeeMapper.employeeToEmployeeDTO(employee);
+        String jwt = jwtService.generateToken(employee,generateExtraClaims(employee));
+        saveToken(jwt,employee);
+        AuthResponse authResponse = employeeMapper.employeeToAuthResponse(employee);
+        authResponse.setToken(jwt);
+        return authResponse;
 
     }
 

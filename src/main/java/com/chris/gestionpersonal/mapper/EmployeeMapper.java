@@ -1,5 +1,6 @@
 package com.chris.gestionpersonal.mapper;
 
+import com.chris.gestionpersonal.models.dto.AuthResponse;
 import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
@@ -17,4 +18,6 @@ public interface EmployeeMapper {
     Employee registerDTOToEmployee(RegisterDTO registerDTO);
 
     EmployeeDTO employeeToEmployeeDTO(Employee employee);
+
+    AuthResponse employeeToAuthResponse(Employee employee);
 }
