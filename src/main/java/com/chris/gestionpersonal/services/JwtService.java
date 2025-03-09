@@ -21,15 +21,15 @@ public class JwtService {
     @Value("${jwt.secret.key}")
     private String SECRET_KEY;
 
-    public String generateToken(UserDetails user, Map<String, Object> extraclaims) {
+    public String generateToken(UserDetails employee, Map<String, Object> extraClaims) {
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date((EXPIRATION_IN_MINUTES * 60 * 1000) + issuedAt.getTime());
         return Jwts.builder()
                 .header()
                 .type("jwt")
                 .and()
-                .subject(user.getUsername())
-                .claims(extraclaims)
+                .subject(employee.getUsername())
+                .claims(extraClaims)
                 .issuedAt(issuedAt)
                 .expiration(expiration)
                 .signWith(generateKey(), Jwts.SIG.HS256)
