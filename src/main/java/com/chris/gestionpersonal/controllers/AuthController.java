@@ -1,7 +1,6 @@
 package com.chris.gestionpersonal.controllers;
 
 import com.chris.gestionpersonal.models.dto.AuthResponse;
-import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.LoginDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.services.AuthService;
@@ -10,9 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/api/v1")
+@RestController
+@RequestMapping ("/api/v1")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -25,8 +26,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<EmployeeDTO> register(@RequestBody RegisterDTO registerDTO){
-        EmployeeDTO response = authService.register(registerDTO);
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterDTO registerDTO){
+        AuthResponse response = authService.register(registerDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
