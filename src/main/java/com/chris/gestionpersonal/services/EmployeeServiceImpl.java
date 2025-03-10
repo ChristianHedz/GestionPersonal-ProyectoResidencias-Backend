@@ -27,7 +27,7 @@ public class EmployeeServiceImpl implements  EmployeeService {
     public Employee register(RegisterDTO registerDTO) {
         Employee employee = employeeMapper.registerDTOToEmployee(registerDTO);
         employee.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
-        Role role = roleRepository.findByName("ROLE_EMPLOYEE")
+        Role role = roleRepository.findByName("EMPLOYEE")
                 .orElseThrow(() -> new ResourceNotFoundException("role","name","ROLE_EMPLOYEE"));
         Status status = statusRepository.findByName("ACTIVO")
                 .orElseThrow(() -> new ResourceNotFoundException("status","name","ACTIVO"));
@@ -38,7 +38,7 @@ public class EmployeeServiceImpl implements  EmployeeService {
 
     @Override
     public Optional<Employee> findByEmail(String name) {
-        return Optional.empty();
+        return employeeRepository.findByEmail(name);
     }
 
 }

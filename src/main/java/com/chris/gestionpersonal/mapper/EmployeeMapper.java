@@ -7,6 +7,8 @@ import com.chris.gestionpersonal.models.entity.Employee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {
 
@@ -17,7 +19,10 @@ public interface EmployeeMapper {
     @Mapping(target = "qrCode", ignore = true)
     Employee registerDTOToEmployee(RegisterDTO registerDTO);
 
+    @Mapping(target = "status", source = "status.name")
     EmployeeDTO employeeToEmployeeDTO(Employee employee);
 
     AuthResponse employeeToAuthResponse(Employee employee);
+
+    List<EmployeeDTO> employeeListToEmployeeDTOList(Iterable<Employee> all);
 }
