@@ -10,5 +10,5 @@ public class EmployeeDTO {
     private String email;
     private String phone;
     private String photo;
-    private Status status;
+    private String status;
 }

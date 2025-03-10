@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 @EnableMethodSecurity(prePostEnabled = true)
 public class HttpSecurityConfig {
 
-//    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
     private AuthenticationProvider daoAuthenticationProvider;
 
     @Bean
@@ -32,11 +33,13 @@ public class HttpSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider)
                 .authorizeHttpRequests(authorizeRequest -> {
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/register").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/login").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/profile").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/employees").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }

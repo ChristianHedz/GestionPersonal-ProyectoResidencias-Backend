@@ -24,7 +24,7 @@ public class Employee implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "status_id",nullable = false)
     private Status status;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
     @OneToMany(cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
@@ -37,7 +37,7 @@ public class Employee implements UserDetails {
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
     @Override
