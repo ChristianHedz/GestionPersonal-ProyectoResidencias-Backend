@@ -10,6 +10,8 @@ import com.chris.gestionpersonal.models.dto.LoginDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Jwt;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -36,7 +38,7 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private static final String EMAIL = "email";
 
-    public AuthResponse login(LoginDTO loginDTO) {
+    public AuthResponse login(LoginDTO loginDTO, HttpServletResponse httpResponse ) {
         Authentication auth =  new UsernamePasswordAuthenticationToken(
                 loginDTO.getEmail(),loginDTO.getPassword()
         );
@@ -45,31 +47,41 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("Employee",EMAIL, loginDTO.getEmail()));
         String jwt = jwtService.generateToken(employee,generateExtraClaims(employee));
         saveToken(jwt,employee);
-        AuthResponse authResponse = employeeMapper.employeeToAuthResponse(employee);
-        authResponse.setToken(jwt);
-        return authResponse;
+        addJwtCookie(httpResponse,jwt);
+        return employeeMapper.employeeToAuthResponse(employee);
     }
 
-    public AuthResponse register(RegisterDTO registerDTO) {
+    //Agrega la cookie con el jwt al encabezado
+
+    public AuthResponse register(RegisterDTO registerDTO, HttpServletResponse httpResponse) {
         Employee employee = employeeService.register(registerDTO);
         String jwt = jwtService.generateToken(employee,generateExtraClaims(employee));
         saveToken(jwt,employee);
-        AuthResponse authResponse = employeeMapper.employeeToAuthResponse(employee);
-        authResponse.setToken(jwt);
-        return authResponse;
+        addJwtCookie(httpResponse,jwt);
+        return employeeMapper.employeeToAuthResponse(employee);
 
     }
 
-    public EmployeeDTO findLoggerUser() {
+    private void addJwtCookie(HttpServletResponse httpResponse, String jwt) {
+        Cookie jwtCookie = new Cookie("jwt", jwt);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setSecure(false);
+        jwtCookie.setAttribute("SameSite","Lax");
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(60 * 60); // 1 hour in seconds (matching jwt.expiration.minutes)
+        httpResponse.addCookie(jwtCookie);
+    }
+
+    public AuthResponse findLoggerUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth instanceof AnonymousAuthenticationToken){
             throw new AuthenticationCredentialsNotFoundException("El usuario no esta autenticado ");
         }
-        log.info("Usuario autenticado 1: {}",auth.getName());
         String employee =  auth.getName();
         log.info("Usuario autenticado 2: {}",employee);
-        Employee authEmployee  = employeeRepository.findByEmail(employee).orElseThrow(() -> new ResourceNotFoundException("employee",EMAIL,employee));
-        return employeeMapper.employeeToEmployeeDTO(authEmployee);
+        Employee authEmployee  = employeeRepository.findByEmail(employee).orElseThrow(()
+                -> new ResourceNotFoundException("employee",EMAIL,employee));
+        return employeeMapper.employeeToAuthResponse(authEmployee);
     }
 
     private Map<String,Object> generateExtraClaims(Employee employee) {

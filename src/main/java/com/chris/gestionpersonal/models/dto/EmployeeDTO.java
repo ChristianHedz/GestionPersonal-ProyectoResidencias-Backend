@@ -1,6 +1,5 @@
 package com.chris.gestionpersonal.models.dto;
 
-import com.chris.gestionpersonal.models.entity.Status;
 import lombok.Data;
 
 @Data

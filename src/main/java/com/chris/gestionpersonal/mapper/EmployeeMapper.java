@@ -22,6 +22,7 @@ public interface EmployeeMapper {
     @Mapping(target = "status", source = "status.name")
     EmployeeDTO employeeToEmployeeDTO(Employee employee);
 
+    @Mapping(target = "role", source = "role.name")
     AuthResponse employeeToAuthResponse(Employee employee);
 
     List<EmployeeDTO> employeeListToEmployeeDTOList(Iterable<Employee> all);
