@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
+@Slf4j
 @AllArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -30,23 +32,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwt = jwtService.extractTokenFromRequest(request);
-        if(jwt == null || jwt.isBlank()){
+        Optional<String> jwt = jwtService.extractJwtFromCookie(request);
+        if(jwt.isEmpty()){
             filterChain.doFilter(request,response);
             return;
         }
-        Optional<Jwt> findToken = tokenRepository.findByToken(jwt);
+        Optional<Jwt> findToken = tokenRepository.findByToken(jwt.get());
         boolean isValid = validateToken(findToken);
         if(!isValid){
             findToken.ifPresent(this::updateTokenStatus);
             filterChain.doFilter(request,response);
             return;
         }
-        String email = jwtService.extractUsername(jwt);
-        Employee user = employeeService.findByEmail(email)
+        String email = jwtService.extractEmail(jwt.get());
+        log.info("probando empleado encontrado");
+        Employee employee = employeeService.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("employee","employee",email));
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                = new UsernamePasswordAuthenticationToken(email,null, user.getAuthorities());
+                = new UsernamePasswordAuthenticationToken(email,null, employee.getAuthorities());
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetails(request));
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         filterChain.doFilter(request,response);
