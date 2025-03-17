@@ -61,4 +61,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    public ResponseEntity<ApiResponse> handlerEmailAlreadyRegisteredException(EmailAlreadyRegisteredException ex, WebRequest webRequest){
+        ApiResponse response = new ApiResponse("El email ya se encuentra registrado en el sistema.",
+                HttpStatus.BAD_REQUEST, webRequest.getDescription(false),ex.getMessage() );
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
 }

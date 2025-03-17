@@ -3,6 +3,7 @@ package com.chris.gestionpersonal.services;
 import com.chris.gestionpersonal.Repositories.EmployeeRepository;
 import com.chris.gestionpersonal.Repositories.RoleRepository;
 import com.chris.gestionpersonal.Repositories.StatusRepository;
+import com.chris.gestionpersonal.exceptions.EmailAlreadyRegisteredException;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.EmployeeMapper;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
@@ -25,6 +26,7 @@ public class EmployeeServiceImpl implements  EmployeeService {
     private final PasswordEncoder passwordEncoder;
 
     public Employee register(RegisterDTO registerDTO) {
+        validateEmailAvailability(registerDTO.getEmail());
         Employee employee = employeeMapper.registerDTOToEmployee(registerDTO);
         employee.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         Role role = roleRepository.findByName("EMPLOYEE")
@@ -40,5 +42,14 @@ public class EmployeeServiceImpl implements  EmployeeService {
     public Optional<Employee> findByEmail(String name) {
         return employeeRepository.findByEmail(name);
     }
+
+    private void validateEmailAvailability(String email){
+        employeeRepository.findByEmail(email)
+                .ifPresent(employee -> {
+                    throw new EmailAlreadyRegisteredException("El email ya se encuentra registrado");
+                });
+    }
+
+
 
 }
