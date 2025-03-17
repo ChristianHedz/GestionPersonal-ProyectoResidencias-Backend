@@ -5,7 +5,9 @@ import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.LoginDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterDTO registerDTO, HttpServletResponse httpResponse){
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterDTO registerDTO, HttpServletResponse httpResponse){
         log.info("Registering user: {}", registerDTO);
         AuthResponse response = authService.register(registerDTO,httpResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -46,6 +48,12 @@ public class AuthController {
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees(){
         List<EmployeeDTO> response = authService.listAllEmployees();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse){
+        authService.logout(httpRequest,httpResponse);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

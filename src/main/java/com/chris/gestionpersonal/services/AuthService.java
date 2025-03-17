@@ -11,6 +11,7 @@ import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Jwt;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +22,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -105,5 +106,25 @@ public class AuthService {
             throw new ResourceNotFoundException("Employees");
         }
         return employeeList;
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+
+        Optional<String> jwt = jwtService.extractJwtFromCookie(request);
+        if(jwt.isEmpty()){
+            return;
+        }
+        Optional<Jwt> token = tokenRepository.findByToken(jwt.get());
+
+        if(token.isPresent()  && token.get().isValid()){
+            token.get().setValid(false);
+            tokenRepository.save(token.get());
+        }
+
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); // Expirar inmediatamente
+        response.addCookie(cookie);
     }
 }

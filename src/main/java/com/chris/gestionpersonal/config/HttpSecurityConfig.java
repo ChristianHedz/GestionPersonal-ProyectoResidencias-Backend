@@ -40,6 +40,7 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/login").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/profile").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/employees").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/logout").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }
@@ -56,3 +57,4 @@ public class HttpSecurityConfig {
         return source;
     }
 }
+
