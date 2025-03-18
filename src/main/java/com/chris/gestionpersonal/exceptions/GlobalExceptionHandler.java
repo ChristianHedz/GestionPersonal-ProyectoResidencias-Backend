@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,6 +67,14 @@ public class GlobalExceptionHandler {
         ApiResponse response = new ApiResponse("El email ya se encuentra registrado en el sistema.",
                 HttpStatus.BAD_REQUEST, webRequest.getDescription(false),ex.getMessage() );
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse> handlerIOException(IOException ex, WebRequest webRequest){
+        ApiResponse response = new ApiResponse("Ha ocurrido un error al intentar leer/escribir un archivo.",
+                HttpStatus.INTERNAL_SERVER_ERROR, webRequest.getDescription(false),ex.getMessage() );
+        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
 }

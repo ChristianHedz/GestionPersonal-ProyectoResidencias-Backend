@@ -10,6 +10,7 @@ import com.chris.gestionpersonal.models.dto.LoginDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Jwt;
+import com.google.zxing.WriterException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +39,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final TokenRepository tokenRepository;
+    private final QrCodeService qrCodeService;
     private static final String EMAIL = "email";
 
     public AuthResponse login(LoginDTO loginDTO, HttpServletResponse httpResponse ) {
@@ -52,15 +55,13 @@ public class AuthService {
         return employeeMapper.employeeToAuthResponse(employee);
     }
 
-    //Agrega la cookie con el jwt al encabezado
-
-    public AuthResponse register(RegisterDTO registerDTO, HttpServletResponse httpResponse) {
+    public AuthResponse register(RegisterDTO registerDTO, HttpServletResponse httpResponse) throws IOException, WriterException {
+        String qrCodePath = qrCodeService.generateQRCode(registerDTO.getEmail(), 350, 350);
         Employee employee = employeeService.register(registerDTO);
         String jwt = jwtService.generateToken(employee,generateExtraClaims(employee));
         saveToken(jwt,employee);
         addJwtCookie(httpResponse,jwt);
         return employeeMapper.employeeToAuthResponse(employee);
-
     }
 
     private void addJwtCookie(HttpServletResponse httpResponse, String jwt) {

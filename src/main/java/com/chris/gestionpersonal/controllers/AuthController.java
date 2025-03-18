@@ -5,6 +5,7 @@ import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.LoginDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.services.AuthService;
+import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -31,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterDTO registerDTO, HttpServletResponse httpResponse){
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterDTO registerDTO, HttpServletResponse httpResponse) throws IOException, WriterException {
         log.info("Registering user: {}", registerDTO);
         AuthResponse response = authService.register(registerDTO,httpResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
