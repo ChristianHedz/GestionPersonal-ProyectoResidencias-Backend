@@ -46,12 +46,6 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/employees")
-    public ResponseEntity<List<EmployeeDTO>> getAllEmployees(){
-        List<EmployeeDTO> response = authService.listAllEmployees();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse){
         authService.logout(httpRequest,httpResponse);

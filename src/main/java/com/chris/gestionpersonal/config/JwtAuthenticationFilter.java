@@ -46,8 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String email = jwtService.extractEmail(jwt.get());
         log.info("probando empleado encontrado");
-        Employee employee = employeeService.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("employee","employee",email));
+        Employee employee = employeeService.findByEmail(email);
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                 = new UsernamePasswordAuthenticationToken(email,null, employee.getAuthorities());
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetails(request));

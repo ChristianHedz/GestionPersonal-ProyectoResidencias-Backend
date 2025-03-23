@@ -1,11 +1,15 @@
 package com.chris.gestionpersonal.services;
 
+import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
+import java.util.List;
 
-import java.util.Optional;
 
 public interface EmployeeService {
-    Optional<Employee> findByEmail(String name);
+    Employee findByEmail(String name);
+    Employee findById(Long id);
     Employee register(RegisterDTO registerDTO);
+    List<EmployeeDTO> listAllEmployees();
+    EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO);
 }

@@ -38,6 +38,7 @@ public class HttpSecurityConfig {
                 .authorizeHttpRequests(authorizeRequest -> {
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/register").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/login").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.PUT,"api/v1/employee/{id}").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/profile").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/employees").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/logout").permitAll();

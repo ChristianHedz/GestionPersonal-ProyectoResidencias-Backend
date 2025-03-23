@@ -107,14 +107,6 @@ public AuthResponse register(RegisterDTO registerDTO, HttpServletResponse httpRe
         tokenRepository.save(token);
     }
 
-    public List<EmployeeDTO> listAllEmployees() {
-        List<EmployeeDTO> employeeList = employeeMapper.employeeListToEmployeeDTOList(employeeRepository.findAll());
-        if (employeeList.isEmpty()){
-            throw new ResourceNotFoundException("Employees");
-        }
-        return employeeList;
-    }
-
     public void logout(HttpServletRequest request, HttpServletResponse response) {
 
         Optional<String> jwt = jwtService.extractJwtFromCookie(request);
@@ -174,4 +166,5 @@ private EmailDTO templateEmail(String email, String fullName) {
     emailDTO.setMessage(htmlTemplate);
     return emailDTO;
 }
+
 }
