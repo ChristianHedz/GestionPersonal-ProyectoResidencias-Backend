@@ -1,13 +1,16 @@
 package com.chris.gestionpersonal.services;
 
+import com.chris.gestionpersonal.Repositories.AssistRepository;
 import com.chris.gestionpersonal.Repositories.EmployeeRepository;
 import com.chris.gestionpersonal.Repositories.RoleRepository;
 import com.chris.gestionpersonal.Repositories.StatusRepository;
 import com.chris.gestionpersonal.exceptions.EmailAlreadyRegisteredException;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.EmployeeMapper;
+import com.chris.gestionpersonal.models.dto.AssistDTO;
 import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
+import com.chris.gestionpersonal.models.entity.Assist;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Role;
 import com.chris.gestionpersonal.models.entity.Status;
@@ -26,6 +29,7 @@ public class EmployeeServiceImpl implements  EmployeeService {
     private final StatusRepository statusRepository;
     private final EmployeeMapper employeeMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AssistRepository assistRepository;
 
     public Employee register(RegisterDTO registerDTO) {
         validateEmailAvailability(registerDTO.getEmail());
@@ -78,7 +82,6 @@ public class EmployeeServiceImpl implements  EmployeeService {
         employeeRepository.save(employee);
         return employeeMapper.employeeToEmployeeDTO(employee);
     }
-
 
 
 }

@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 @Data
 @Entity
-public class Assists {
+public class Assist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

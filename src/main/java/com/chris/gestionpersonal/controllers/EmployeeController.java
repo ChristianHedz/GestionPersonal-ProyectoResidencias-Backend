@@ -1,7 +1,9 @@
 package com.chris.gestionpersonal.controllers;
 
 
+import com.chris.gestionpersonal.models.dto.AssistDTO;
 import com.chris.gestionpersonal.models.dto.EmployeeDTO;
+import com.chris.gestionpersonal.services.AssistService;
 import com.chris.gestionpersonal.services.AuthService;
 import com.chris.gestionpersonal.services.EmployeeService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class EmployeeController {
 
     private final AuthService authService;
     private final EmployeeService employeeService;
+    private final AssistService assistService;
 
     @GetMapping("/employees")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees(){
@@ -34,6 +37,19 @@ public class EmployeeController {
         log.info("employee", employeeDTO.getFullName());
         EmployeeDTO response = employeeService.updateEmployee(id,employeeDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/assist")
+    public ResponseEntity<AssistDTO> assist(@RequestBody AssistDTO assistDTO){
+        log.info("assist", assistDTO);
+        AssistDTO response = assistService.assist(assistDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/process-assists")
+    public ResponseEntity<String> testProcessAssists() {
+        assistService.processDailyAssists();
+        return ResponseEntity.ok("Proceso ejecutado correctamente");
     }
 
 }

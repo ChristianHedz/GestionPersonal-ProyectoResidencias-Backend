@@ -28,7 +28,7 @@ public class Employee implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
     @OneToMany(cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
-    private List<Assists> assists;
+    private List<Assist> assists;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

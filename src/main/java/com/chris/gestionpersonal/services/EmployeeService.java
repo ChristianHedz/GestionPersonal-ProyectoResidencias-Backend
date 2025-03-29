@@ -1,5 +1,6 @@
 package com.chris.gestionpersonal.services;
 
+import com.chris.gestionpersonal.models.dto.AssistDTO;
 import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.models.dto.RegisterDTO;
 import com.chris.gestionpersonal.models.entity.Employee;
