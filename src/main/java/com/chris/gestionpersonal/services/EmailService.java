@@ -9,4 +9,5 @@ public interface EmailService {
     EmailDTO sendEmailSimple(EmailDTO emailDTO);
     EmailFileDTO sendEmailWithFile(EmailFileDTO emailFileDTO);
     void sendEmail(EmailDTO emailDTO, File file);
+    EmailDTO templateEmail(String email, String fullName);
 }

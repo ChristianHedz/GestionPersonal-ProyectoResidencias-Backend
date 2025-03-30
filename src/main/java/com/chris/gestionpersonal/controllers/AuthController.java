@@ -1,10 +1,8 @@
 package com.chris.gestionpersonal.controllers;
 
-import com.chris.gestionpersonal.models.dto.AuthResponse;
-import com.chris.gestionpersonal.models.dto.EmployeeDTO;
-import com.chris.gestionpersonal.models.dto.LoginDTO;
-import com.chris.gestionpersonal.models.dto.RegisterDTO;
+import com.chris.gestionpersonal.models.dto.*;
 import com.chris.gestionpersonal.services.AuthService;
+import com.chris.gestionpersonal.services.EmployeeService;
 import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +23,7 @@ import java.util.List;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmployeeService employeeService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginDTO loginDTO, HttpServletResponse httpResponse){
@@ -50,6 +49,14 @@ public class AuthController {
     public ResponseEntity<Void> logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse){
         authService.logout(httpRequest,httpResponse);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/authGoogle")
+    public ResponseEntity<AuthResponse> loginGoogle(@RequestBody TokenGoogle tokenDto, HttpServletResponse httpResponse) throws IOException {
+        AuthResponse employeeGoogleDTO = authService.loginGoogle(tokenDto, httpResponse);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(employeeGoogleDTO);
     }
 
 }
