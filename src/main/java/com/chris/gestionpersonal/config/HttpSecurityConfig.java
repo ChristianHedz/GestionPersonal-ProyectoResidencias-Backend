@@ -45,7 +45,9 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/sendMessage").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/sendMessageFile").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/assist").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/authGoogle").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/process-assists").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }

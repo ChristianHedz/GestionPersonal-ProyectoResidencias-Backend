@@ -18,6 +18,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements  EmployeeService {
@@ -79,7 +80,6 @@ public class EmployeeServiceImpl implements  EmployeeService {
                 });
     }
 
-
     public void sendEmailWithQR(String email,String fullName) {
         boolean isNewUser = !employeeRepository.existsByEmail(email);
         if(isNewUser) {
@@ -130,6 +130,8 @@ public class EmployeeServiceImpl implements  EmployeeService {
         String email = payload.getEmail();
         String name = (String) payload.get("name");
         String pictureUrl = (String) payload.get("picture");
+        log.info("Email: {}", email);
+        log.info("Name: {}", name);
 
         return employeeRepository.findByEmail(email)
                 .orElseGet(() -> {

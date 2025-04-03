@@ -4,10 +4,13 @@ import com.chris.gestionpersonal.Repositories.AssistRepository;
 import com.chris.gestionpersonal.Repositories.EmployeeRepository;
 import com.chris.gestionpersonal.mapper.AssistMapper;
 import com.chris.gestionpersonal.models.dto.AssistDTO;
+import com.chris.gestionpersonal.models.dto.AssistDetailsDTO;
 import com.chris.gestionpersonal.models.entity.Assist;
 import com.chris.gestionpersonal.models.entity.Employee;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +38,13 @@ public class AssistServiceImpl implements AssistService {
         assist.setEmployee(employee);
         assistRepository.save(assist);
         return assistMapper.assistToAssistDTO(assist);
+    }
+
+    @Override
+    public Page<AssistDetailsDTO> getAllAssistDetailsPaginated(Pageable pageable) {
+        log.info("Obteniendo asistencias paginadas");
+        Page<Assist> assistPage = assistRepository.findAllByOrderByDateDescEntryTimeDesc(pageable);
+        return assistPage.map(assistMapper::assistToAssistDetailsDTO);
     }
 
     @Scheduled(cron = "0 5 18 * * ?") // Se ejecuta a las 18:05 todos los días
@@ -85,4 +95,6 @@ public class AssistServiceImpl implements AssistService {
         absence.setWorkedHours(0);
         return absence;
     }
+
+
 }
