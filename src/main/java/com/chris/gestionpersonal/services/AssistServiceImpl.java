@@ -1,7 +1,9 @@
 package com.chris.gestionpersonal.services;
 
 import com.chris.gestionpersonal.Repositories.AssistRepository;
+import com.chris.gestionpersonal.Repositories.AssistSpecifications;
 import com.chris.gestionpersonal.Repositories.EmployeeRepository;
+import com.chris.gestionpersonal.exceptions.InvalidDateRangeException;
 import com.chris.gestionpersonal.mapper.AssistMapper;
 import com.chris.gestionpersonal.models.dto.AssistDTO;
 import com.chris.gestionpersonal.models.dto.AssistDetailsDTO;
@@ -10,7 +12,10 @@ import com.chris.gestionpersonal.models.entity.Employee;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +46,21 @@ public class AssistServiceImpl implements AssistService {
     }
 
     @Override
-    public Page<AssistDetailsDTO> getAllAssistDetailsPaginated(Pageable pageable) {
-        log.info("Obteniendo asistencias paginadas");
-        Page<Assist> assistPage = assistRepository.findAllByOrderByDateDescEntryTimeDesc(pageable);
+    public Page<AssistDetailsDTO> getAllAssistDetailsPaginated(int page, int size, String sortBy, String sortDir, Long employeeId, String incidence, LocalDate startDate, LocalDate endDate) {
+        Sort sortByAndOrder = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
+
+        Specification<Assist> spec = Specification.where(AssistSpecifications.withEmployeeId(employeeId))
+                .and(AssistSpecifications.withIncidence(incidence))
+                .and(AssistSpecifications.withDateBetween(startDate, endDate));
+
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new InvalidDateRangeException("La fecha de inicio debe ser anterior o igual a la fecha de fin");
+        }
+
+        Page<Assist> assistPage = assistRepository.findAll(spec, pageable);
+
         return assistPage.map(assistMapper::assistToAssistDetailsDTO);
     }
 

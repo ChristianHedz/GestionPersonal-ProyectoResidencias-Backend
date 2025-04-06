@@ -74,7 +74,13 @@ public class GlobalExceptionHandler {
         ApiResponse response = new ApiResponse("Ha ocurrido un error al intentar leer/escribir un archivo.",
                 HttpStatus.INTERNAL_SERVER_ERROR, webRequest.getDescription(false),ex.getMessage() );
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ApiResponse> handleInvalidDateRangeException(InvalidDateRangeException ex, WebRequest webRequest) {
+        ApiResponse response = new ApiResponse("Rango de fechas inválido",
+                HttpStatus.BAD_REQUEST, webRequest.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }
