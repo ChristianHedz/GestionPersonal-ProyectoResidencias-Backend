@@ -12,9 +12,9 @@ VALUES ('admin', 'admin@gmail.com', '9876543210',
         (SELECT id FROM status WHERE name = 'ACTIVO'));
 
 INSERT INTO assist (date, entry_time, exit_time, incidents, worked_hours, employee_id)
-VALUES ('2025-04-04', '08:00:00', '17:00:00', 'FALTA', 9,
+VALUES ('2025-04-04', '9:00:00', '17:00:00', 'FALTA', 8,
         (SELECT id FROM employee WHERE full_name = 'admin')),
-       ('2025-04-04', '08:00:00', '17:00:00', 'RETARDO', 9,
+       ('2025-04-05', '09:00:00', '17:00:00', 'RETARDO',8,
         (SELECT id FROM employee WHERE full_name = 'admin')),
-       ('2025-04-04', '08:00:00', '17:00:00', 'ASISTENCIA', 9,
+       ('2025-04-06', '09:00:00', '17:00:00', 'ASISTENCIA', 8,
         (SELECT id FROM employee WHERE full_name = 'admin'));

@@ -11,6 +11,7 @@ public class AssistDetailsDTO {
     private LocalTime entryTime;
     private LocalTime exitTime;
     private String incidents;
+    private String reason;
     private Integer workedHours;
     private String fullName;
 }

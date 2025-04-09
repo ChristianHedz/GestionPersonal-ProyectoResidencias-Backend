@@ -40,17 +40,5 @@ public class EmployeeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/assist")
-    public ResponseEntity<AssistDTO> assist(@RequestBody AssistDTO assistDTO){
-        log.info("assist", assistDTO);
-        AssistDTO response = assistService.assist(assistDTO);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/process-assists")
-    public ResponseEntity<String> testProcessAssists() {
-        assistService.processDailyAssists();
-        return ResponseEntity.ok("Proceso ejecutado correctamente");
-    }
 
 }

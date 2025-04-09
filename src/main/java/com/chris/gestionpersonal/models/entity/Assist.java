@@ -15,6 +15,7 @@ public class Assist {
     private LocalTime entryTime;
     private LocalTime exitTime;
     private String incidents;
+    private String reason;
     private Integer workedHours;
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
