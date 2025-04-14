@@ -2,6 +2,7 @@ package com.chris.gestionpersonal.controllers;
 
 import com.chris.gestionpersonal.models.dto.ChatMessage;
 import com.chris.gestionpersonal.services.ChatbotService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class ChatController {
     private final ChatbotService chatbotService;
 
     @PostMapping("/chat")
-    public ResponseEntity<ChatMessage> chat(@RequestBody ChatMessage chatRequest) {
+    public ResponseEntity<ChatMessage> chat(@RequestBody @Valid ChatMessage chatRequest) {
             log.info("ChatController: Received request with question: {}", chatRequest);
             ChatMessage answer = chatbotService.chat(chatRequest);
             return new ResponseEntity<>(answer, HttpStatus.OK);

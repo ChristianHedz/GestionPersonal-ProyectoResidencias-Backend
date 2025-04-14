@@ -56,27 +56,14 @@ public class ChatbotService {
                         .content();
                 log.info("ChatbotService: Received response from AI: {}", response);
 
-                // Remove both newlines and the word "public"
-                if (response == null || response.isEmpty()) {
-                    log.warn("Received empty response from AI");
-                    throw new RuntimeException("Received empty response from AI");
-                }
-                return response.replace("\\n", "").replace("public", "");
+                return response;
 
             } catch (Exception e) {
                 retryCount++;
                 log.warn("Error calling chat (attempt {}/{}): {}", retryCount, maxRetries, e.getMessage());
 
                 if (retryCount >= maxRetries) {
-                    log.error("Failed after {} attempts: {}", maxRetries, e.getMessage(), e);
                     throw new RuntimeException("Error communicating with the AI service after multiple attempts", e);
-                }
-
-                try {
-                    Thread.sleep(500 * retryCount);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Retry interrupted", ie);
                 }
             }
         }
