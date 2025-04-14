@@ -35,6 +35,7 @@ public class AssistServiceImpl implements AssistService {
     private final EmployeeRepository employeeRepository;
     private final AssistMapper assistMapper;
     private final EmployeeService employeeService;
+    private final AssistExcelServiceImpl assistExcelService;
 
     @Override
     public AssistDTO assist(AssistDTO assistDTO) {
@@ -48,20 +49,37 @@ public class AssistServiceImpl implements AssistService {
     @Override
     public Page<AssistDetailsDTO> getAllAssistDetailsPaginated(int page, int size, String sortBy, String sortDir, Long employeeId, String incidence, LocalDate startDate, LocalDate endDate) {
         Sort sortByAndOrder = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
-
         Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
 
-        Specification<Assist> spec = Specification.where(AssistSpecifications.withEmployeeId(employeeId))
-                .and(AssistSpecifications.withIncidence(incidence))
-                .and(AssistSpecifications.withDateBetween(startDate, endDate));
-
-        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            throw new InvalidDateRangeException("La fecha de inicio debe ser anterior o igual a la fecha de fin");
-        }
+        Specification<Assist> spec = createAssistSpecification(employeeId, incidence, startDate, endDate);
 
         Page<Assist> assistPage = assistRepository.findAll(spec, pageable);
 
         return assistPage.map(assistMapper::assistToAssistDetailsDTO);
+    }
+
+    @Override
+    public byte[] exportAssistDetailsToExcel(String sortBy, String sortDir, Long employeeId, String incidence, LocalDate startDate, LocalDate endDate) {
+        Sort sortByAndOrder = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+
+        Specification<Assist> spec = createAssistSpecification(employeeId, incidence, startDate, endDate);
+
+        List<Assist> assists = assistRepository.findAll(spec, sortByAndOrder);
+        List<AssistDetailsDTO> assistDetailsDTOs = assists.stream()
+                .map(assistMapper::assistToAssistDetailsDTO)
+                .toList();
+
+        return assistExcelService.createExcel(assistDetailsDTOs);
+    }
+
+    private Specification<Assist> createAssistSpecification(Long employeeId, String incidence, LocalDate startDate, LocalDate endDate) {
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new InvalidDateRangeException("La fecha de inicio debe ser anterior o igual a la fecha de fin");
+        }
+
+        return Specification.where(AssistSpecifications.withEmployeeId(employeeId))
+                .and(AssistSpecifications.withIncidence(incidence))
+                .and(AssistSpecifications.withDateBetween(startDate, endDate));
     }
 
     @Scheduled(cron = "0 5 18 * * ?") // Se ejecuta a las 18:05 todos los días

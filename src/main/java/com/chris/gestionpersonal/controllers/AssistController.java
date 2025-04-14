@@ -41,6 +41,23 @@ public class AssistController {
         return new ResponseEntity<>(assistDetailsPage, HttpStatus.OK);
     }
 
+    @GetMapping("/assist-details/excel")
+    public ResponseEntity<byte[]> exportAssistDetailsToExcel(
+            @RequestParam(defaultValue = Pagination.SORT_BY) String sortBy,
+            @RequestParam(defaultValue = Pagination.SORT_DIRECTION) String sortDirection,
+            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) String incidents,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        log.info("Exporting assist details to Excel: sortBy={}, sortDirection={}, employeeId={}, incidence={}, startDate={}, endDate={}",
+                sortBy, sortDirection, employeeId, incidents, startDate, endDate);
+        byte[] excelData = assistService.exportAssistDetailsToExcel(sortBy, sortDirection, employeeId, incidents, startDate, endDate);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=assist_details.xlsx")
+                .body(excelData);
+    }
+
     @PostMapping("/assist")
     public ResponseEntity<AssistDTO> assist(@RequestBody AssistDTO assistDTO){
         log.info("assist", assistDTO);
