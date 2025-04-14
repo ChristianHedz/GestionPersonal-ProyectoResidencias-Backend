@@ -40,13 +40,24 @@ public class ChatbotService {
                             "LEFT JOIN assist a ON e.id = a.employee_id " +
                             "WHERE a.incidents = 'FALTA' AND EXTRACT(MONTH FROM a.date) = 4 AND EXTRACT(YEAR FROM a.date) = 2025 " +
                             "ORDER BY e.full_name; " +
-                            "Responde con lenguaje natural, siendo claro y conciso y no agregues informacion que el usuario no pidio. No intentes usar columnas que no existen.";
+                            "Si el usuario escribe un nombre con errores ortográficos (como 'Ana Martines' en lugar de 'Ana Martínez') " +
+                            "o sin acentos, debes intentar encontrar el nombre más similar en la base de datos e indicar " +
+                            "la corrección. Por ejemplo: 'Encontré información para Ana Martínez (corregido de Ana Martines)'. " +
+                            "Busca similitudes en los nombres teniendo en cuanta acentos, mayusculas y minusculas, usando las primeras letras del nombre/apellido, " +
+                            "o comparando fonéticamente cuando sea posible. " +
+                            "Para búsquedas de nombres en PostgreSQL, debes usar patrones que ignoren acentos: " +
+                            "WHERE e.full_name ILIKE '%Carlos Rodriguez%' OR e.full_name ILIKE '%Carlos Rodríguez%' " +
+                            "Cuando recibas una consulta con un nombre, siempre verifica ambas formas (con y sin acentos). " +
+                            "Si encuentras el nombre con acento diferente al que pregunta el usuario, debes indicarlo: " +
+                            "'Encontré a Carlos Rodríguez (el nombre correcto incluye acento)'. " +
+                            "Responde con lenguaje natural, siendo claro y conciso y no agregues informacion que el usuario no pidio. El usuario podria tener faltas de ortografia. o escribir algun nombre diferente trata de interpretar lo que quiere decir. No intentes usar columnas que no existen.";
 
             if (retryCount > 0) {
                 currentPrompt = retryCount == 1 ? " SELECT \\n    e.id as id_empleado,\\n    e.full_name as nombre_completo,\\n    e.email as correo,\\n    e.phone as telefono,\\n    r.name as rol,\\n    s.name as estado,\\n    a.date as fecha_asistencia,\\n    a.entry_time as hora_entrada,\\n    a.exit_time as hora_salida,\\n    a.worked_hours as horas_trabajadas,\\n    a.incidents as incidencia,\\n    a.reason as razon_incidencia\\nFROM employee e\\nLEFT JOIN role r ON e.role_id = r.id\\nLEFT JOIN status s ON e.status_id = s.id\\nLEFT JOIN assist a ON e.id = a.employee_id\\nORDER BY e.full_name, a.date DESC; " + question.getQuestion() :
                     " SELECT * FROM assist;: SELECT * FROM employee; SELECT * FROM role; SELECT * from status;  " + question.getQuestion();
                 log.info("Retry attempt {}: Using modified prompt: {}", retryCount, currentPrompt);
             }
+
             try {
                 String response = chatClient
                         .prompt()
