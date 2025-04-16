@@ -3,81 +3,95 @@ package com.chris.gestionpersonal.services;
 import com.chris.gestionpersonal.models.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
+import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
+import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions;
+import org.springframework.ai.openai.api.OpenAiAudioApi;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
+import java.text.Normalizer;
+
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ChatbotService {
 
     private final ChatClient chatClient;
+    private final OpenAiAudioTranscriptionModel openAiAudioTranscriptionModel;
+
 
     public ChatMessage chat(ChatMessage question) {
-        ChatMessage chatResponse = new ChatMessage();
-        log.info("ChatbotService: Sending question to AI: {}", question.getQuestion());
-        chatResponse.setQuestion(retryPromptMessage(question));
-        return chatResponse;
+        ChatMessage chatMessage = new ChatMessage();
+        ChatResponse chatResponse = retryPromptMessage(question);
+        String response = chatResponse.getResult().getOutput().getText();
+        chatMessage.setQuestion(response);
+        return chatMessage;
     }
 
-    private String retryPromptMessage(ChatMessage question) {
-        int maxRetries = 3;
-        int retryCount = 0;
-        while (retryCount < maxRetries) {
-            String currentPrompt = "Responde a esta pregunta usando solo las columnas existentes en las tablas mencionadas: " + question.getQuestion();
-            String systemMessage =
-                    "La base de datos tiene tablas: employee (id, full_name, email, role_id, status_id), " +
-                            "role (id, name), status (id, name), assist (employee_id, date, entry_time, exit_time, " +
-                            "worked_hours, incidents, reason). " +
-                            "Las columnas incidents de asistencias son: ASISTENCIA (asistió a tiempo), RETARDO (asistió con retraso) y FALTA (no asistió). pero recuerdo que RETARDO tambien cuenta como ASISTENCIA pero llego tarde" +
-                            "Para obtener conteos o estadísticas, debes realizar cálculos explícitos como COUNT() o agrupar con GROUP BY. " +
-                            "Usa esta consulta como referencia, pero modifícala según sea necesario para responder correctamente: " +
-                            "SELECT e.id, e.full_name, e.email, e.phone, r.name as rol, s.name as estado, " +
-                            "a.date, a.entry_time, a.exit_time, a.worked_hours, a.incidents, a.reason " +
-                            "FROM employee e " +
-                            "LEFT JOIN role r ON e.role_id = r.id " +
-                            "LEFT JOIN status s ON e.status_id = s.id " +
-                            "LEFT JOIN assist a ON e.id = a.employee_id " +
-                            "WHERE a.incidents = 'FALTA' AND EXTRACT(MONTH FROM a.date) = 4 AND EXTRACT(YEAR FROM a.date) = 2025 " +
-                            "ORDER BY e.full_name; " +
-                            "Si el usuario escribe un nombre con errores ortográficos (como 'Ana Martines' en lugar de 'Ana Martínez') " +
-                            "o sin acentos, debes intentar encontrar el nombre más similar en la base de datos e indicar " +
-                            "la corrección. Por ejemplo: 'Encontré información para Ana Martínez (corregido de Ana Martines)'. " +
-                            "Busca similitudes en los nombres teniendo en cuanta acentos, mayusculas y minusculas, usando las primeras letras del nombre/apellido, " +
-                            "o comparando fonéticamente cuando sea posible. " +
-                            "Para búsquedas de nombres en PostgreSQL, debes usar patrones que ignoren acentos: " +
-                            "WHERE e.full_name ILIKE '%Carlos Rodriguez%' OR e.full_name ILIKE '%Carlos Rodríguez%' " +
-                            "Cuando recibas una consulta con un nombre, siempre verifica ambas formas (con y sin acentos). " +
-                            "Si encuentras el nombre con acento diferente al que pregunta el usuario, debes indicarlo: " +
-                            "'Encontré a Carlos Rodríguez (el nombre correcto incluye acento)'. " +
-                            "Responde con lenguaje natural, siendo claro y conciso y no agregues informacion que el usuario no pidio. El usuario podria tener faltas de ortografia. o escribir algun nombre diferente trata de interpretar lo que quiere decir. No intentes usar columnas que no existen.";
+    public ByteArrayResource textToAudio(ChatMessage question) {
+        log.info("ChatbotService: Received request to convert text to audio: {}", question.getQuestion());
+        ChatMessage chatMessage = new ChatMessage();
+        ChatResponse chatResponse = retryPromptMessage(question);
+        String audioTranscript = chatResponse.getResult().getOutput().getText();
+        log.info("ChatbotService: Received audio transcript: {}", audioTranscript);
+        chatMessage.setQuestion(audioTranscript);
+        byte[] generatedAudio = chatResponse.getResult().getOutput().getMedia().get(0).getDataAsByteArray();
+        return new ByteArrayResource(generatedAudio);
+    }
 
-            if (retryCount > 0) {
-                currentPrompt = retryCount == 1 ? " SELECT \\n    e.id as id_empleado,\\n    e.full_name as nombre_completo,\\n    e.email as correo,\\n    e.phone as telefono,\\n    r.name as rol,\\n    s.name as estado,\\n    a.date as fecha_asistencia,\\n    a.entry_time as hora_entrada,\\n    a.exit_time as hora_salida,\\n    a.worked_hours as horas_trabajadas,\\n    a.incidents as incidencia,\\n    a.reason as razon_incidencia\\nFROM employee e\\nLEFT JOIN role r ON e.role_id = r.id\\nLEFT JOIN status s ON e.status_id = s.id\\nLEFT JOIN assist a ON e.id = a.employee_id\\nORDER BY e.full_name, a.date DESC; " + question.getQuestion() :
-                    " SELECT * FROM assist;: SELECT * FROM employee; SELECT * FROM role; SELECT * from status;  " + question.getQuestion();
-                log.info("Retry attempt {}: Using modified prompt: {}", retryCount, currentPrompt);
-            }
+    private ChatResponse retryPromptMessage(ChatMessage question) {
+        String promptContent = "Responde la pregunta correctamente teniendo en cuenta que pudo haber escrito incorrectamente , trata de interpretar lo que quiere decir ";
+        String currentPrompt = "Responde a esta pregunta usando solo las columnas existentes en las tablas mencionadas:  " + question.getQuestion();
+        String systemMessage = """
+                    Eres un asistente que responde preguntas sobre una base de datos con las siguientes tablas:
+                    - employee (id, full_name, email, role_id, status_id)
+                    - role (id, name)
+                    - status (id, name)
+                    - assist (employee_id, date, entry_time, exit_time, worked_hours, incidents, reason)
 
-            try {
-                String response = chatClient
-                        .prompt()
-                        .system(systemMessage)
-                        .user(currentPrompt)
-                        .call()
-                        .content();
-                log.info("ChatbotService: Received response from AI: {}", response);
+                    Reglas de negocio:
+                    - La columna 'incidents' en assist puede ser: ASISTENCIA (asistió a tiempo), RETARDO (asistió con retraso), FALTA (no asistió).
+                    - RETARDO también cuenta como ASISTENCIA en conteos de asistencias.
+                    - Usa COUNT() y GROUP BY para estadísticas.
+                    - Para nombres con errores ortográficos (ej. 'Ana Martines' en lugar de 'Ana Martínez'), busca el nombre más similar usando ILIKE en PostgreSQL (ej. WHERE full_name ILIKE '%Ana Martinez%').
 
-                return response;
+                    Instrucciones:
+                    1. Genera una consulta SQL para validar los datos antes de responder.
+                    2. Responde en lenguaje natural, siendo claro y conciso.
+                    """;
 
-            } catch (Exception e) {
-                retryCount++;
-                log.warn("Error calling chat (attempt {}/{}): {}", retryCount, maxRetries, e.getMessage());
+            ChatResponse response = chatClient
+                    .prompt(promptContent)
+                    .system(systemMessage)
+                    .user(currentPrompt)
+                    .call()
+                    .chatResponse();
 
-                if (retryCount >= maxRetries) {
-                    throw new RuntimeException("Error communicating with the AI service after multiple attempts", e);
-                }
-            }
+            log.info("ChatbotService: Received response from AI: {}", response);
+
+            return response;
+
         }
-        return " No se pudo obtener una respuesta válida del chatbot después de varios intentos.";
+
+    public String audioToText() {
+        var audioResource = new ClassPathResource("audioprueba2.mp3");
+        OpenAiAudioTranscriptionOptions options =
+                OpenAiAudioTranscriptionOptions.builder()
+                        .language("es")
+                        .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
+                        .temperature(0f)
+                        .build();
+
+        AudioTranscriptionPrompt prompt =
+                new AudioTranscriptionPrompt(audioResource,options);
+
+        AudioTranscriptionResponse response = openAiAudioTranscriptionModel.call(prompt);
+        String transcription = response.getResult().getOutput();
+        return Normalizer.normalize(transcription, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
     }
 }

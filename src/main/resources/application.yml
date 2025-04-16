@@ -28,7 +28,15 @@ spring:
     openai:
       api-key: ${OPENAPI_KEY}
       chat:
-          model: gpt-4o-mini-2024-07-18
+        model: gpt-4o-mini-2024-07-18
+        options:
+          model: gpt-4o-mini-audio-preview
+          output-modalities:
+            - text
+            - audio
+          output-audio:
+            voice: alloy
+            format: wav
     mcp:
       client:
         stdio:

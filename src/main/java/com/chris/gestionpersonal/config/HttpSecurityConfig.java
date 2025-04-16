@@ -50,6 +50,7 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details/excel").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"chat").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"chat/audio").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }
