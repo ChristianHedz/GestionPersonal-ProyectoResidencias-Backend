@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -22,21 +23,26 @@ public class ChatController {
         return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 
-    @GetMapping("/chat/audio")
-    public ResponseEntity<ByteArrayResource> chatAudioStreamPreview() {
+    @PostMapping("/chat/audio")
+    public ResponseEntity<byte[]> chatAudioStreamPreview(@RequestParam("audio") MultipartFile audioFile) {
         String audioTranscription = chatbotService.audioToText();
         log.info("ChatController: Received audio transcription: {}", audioTranscription);
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setQuestion(audioTranscription);
-        ByteArrayResource byteArrayResource = chatbotService.textToAudio(chatMessage);
+        byte[] audioResponse = chatbotService.textToAudio(chatMessage);
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(byteArrayResource.contentLength())
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.attachment()
-                                .filename("pruebaaudio.mp3")
-                                .build().toString())
-                .body(byteArrayResource);
+                .contentType(MediaType.parseMediaType("audio/mpeg"))
+                .body(audioResponse);
+    }
+
+    @PostMapping("/chat/faq")
+    public ResponseEntity<ChatMessage> chatFaq(@RequestParam("document") MultipartFile document) {
+        log.info("ChatController: Received document for FAQ processing: {}", document.getOriginalFilename());
+        // For now, we'll create a simple response
+        // In a real implementation, you would process the document and generate a response
+        ChatMessage response = new ChatMessage();
+        response.setQuestion("Documento recibido: " + document.getOriginalFilename());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

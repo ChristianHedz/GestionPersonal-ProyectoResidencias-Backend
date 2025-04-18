@@ -27,16 +27,12 @@ spring:
   ai:
     openai:
       api-key: ${OPENAPI_KEY}
-      chat:
-        model: gpt-4o-mini-2024-07-18
-        options:
-          model: gpt-4o-mini-audio-preview
-          output-modalities:
-            - text
-            - audio
-          output-audio:
-            voice: alloy
-            format: wav
+      retry:
+        max-attempts: 3
+        backoff:
+          initial-interval: 1000  # 1 second
+          multiplier: 2.0  # Exponential backoff
+          max-interval: 10000  # Max 10 seconds
     mcp:
       client:
         stdio:
@@ -82,3 +78,4 @@ google:
   secretId: ${GOOGLE_SECRET_ID}
 
 secretPsw: ${SECRET_PSW}
+debug: true

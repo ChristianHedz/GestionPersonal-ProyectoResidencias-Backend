@@ -9,12 +9,16 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,72 +28,91 @@ public class ChatbotService {
     private final ChatClient chatClient;
     private final OpenAiAudioTranscriptionModel openAiAudioTranscriptionModel;
 
-
     public ChatMessage chat(ChatMessage question) {
+        ChatResponse response = processChatRequest(question, false);
+        String responseText = response.getResult().getOutput().getText();
+
         ChatMessage chatMessage = new ChatMessage();
-        ChatResponse chatResponse = retryPromptMessage(question);
-        String response = chatResponse.getResult().getOutput().getText();
-        chatMessage.setQuestion(response);
+        chatMessage.setQuestion(responseText);
         return chatMessage;
     }
 
-    public ByteArrayResource textToAudio(ChatMessage question) {
+    public byte[] textToAudio(ChatMessage question) {
         log.info("ChatbotService: Received request to convert text to audio: {}", question.getQuestion());
-        ChatMessage chatMessage = new ChatMessage();
-        ChatResponse chatResponse = retryPromptMessage(question);
-        String audioTranscript = chatResponse.getResult().getOutput().getText();
+        ChatResponse response = processChatRequest(question, true);
+        log.info("ChatbotService: Received response from AI: {}", response);
+
+        String audioTranscript = response.getResult().getOutput().getText();
         log.info("ChatbotService: Received audio transcript: {}", audioTranscript);
-        chatMessage.setQuestion(audioTranscript);
-        byte[] generatedAudio = chatResponse.getResult().getOutput().getMedia().get(0).getDataAsByteArray();
-        return new ByteArrayResource(generatedAudio);
+
+        return response.getResult().getOutput().getMedia().get(0).getDataAsByteArray();
     }
 
-    private ChatResponse retryPromptMessage(ChatMessage question) {
-        String promptContent = "Responde la pregunta correctamente teniendo en cuenta que pudo haber escrito incorrectamente , trata de interpretar lo que quiere decir ";
-        String currentPrompt = "Responde a esta pregunta usando solo las columnas existentes en las tablas mencionadas:  " + question.getQuestion();
-        String systemMessage = """
-                    Eres un asistente que responde preguntas sobre una base de datos con las siguientes tablas:
-                    - employee (id, full_name, email, role_id, status_id)
-                    - role (id, name)
-                    - status (id, name)
-                    - assist (employee_id, date, entry_time, exit_time, worked_hours, incidents, reason)
+    private ChatResponse processChatRequest(ChatMessage question, boolean withAudio) {
+        Map<String, String> chatResponse = promptsMessage(question);
 
-                    Reglas de negocio:
-                    - La columna 'incidents' en assist puede ser: ASISTENCIA (asistió a tiempo), RETARDO (asistió con retraso), FALTA (no asistió).
-                    - RETARDO también cuenta como ASISTENCIA en conteos de asistencias.
-                    - Usa COUNT() y GROUP BY para estadísticas.
-                    - Para nombres con errores ortográficos (ej. 'Ana Martines' en lugar de 'Ana Martínez'), busca el nombre más similar usando ILIKE en PostgreSQL (ej. WHERE full_name ILIKE '%Ana Martinez%').
+        OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder()
+                .temperature(1.0);
 
-                    Instrucciones:
-                    1. Genera una consulta SQL para validar los datos antes de responder.
-                    2. Responde en lenguaje natural, siendo claro y conciso.
-                    """;
-
-            ChatResponse response = chatClient
-                    .prompt(promptContent)
-                    .system(systemMessage)
-                    .user(currentPrompt)
-                    .call()
-                    .chatResponse();
-
-            log.info("ChatbotService: Received response from AI: {}", response);
-
-            return response;
-
+        if (withAudio) {
+            optionsBuilder.model(OpenAiApi.ChatModel.GPT_4_O_MINI_AUDIO_PREVIEW)
+                          .outputModalities(List.of("text", "audio"))
+                          .outputAudio(new OpenAiApi.ChatCompletionRequest.AudioParameters(
+                              OpenAiApi.ChatCompletionRequest.AudioParameters.Voice.ALLOY,
+                              OpenAiApi.ChatCompletionRequest.AudioParameters.AudioResponseFormat.WAV));
+        } else {
+            optionsBuilder.model("o4-mini-2025-04-16");
         }
+
+        return chatClient
+                .prompt(chatResponse.get("prompt"))
+                .system(chatResponse.get("systemMessage"))
+                .user(chatResponse.get("userPrompt"))
+                .options(optionsBuilder.build())
+                .call()
+                .chatResponse();
+    }
+
+    private Map<String, String> promptsMessage(ChatMessage question) {
+        String promptContent = "Responde la pregunta correctamente teniendo en cuenta que pudo haber escrito incorrectamente, trata de interpretar lo que quiere decir";
+        String userPrompt = "Responde a esta pregunta usando solo las columnas existentes en las tablas mencionadas: " + question.getQuestion();
+        String systemMessage = """
+                Eres un asistente que responde preguntas sobre una base de datos con las siguientes tablas:
+                - employee (id, full_name, email, role_id, status_id)
+                - role (id, name)
+                - status (id, name)
+                - assist (employee_id, date, entry_time, exit_time, worked_hours, incidents, reason)
+
+                Reglas de negocio:
+                - La columna 'incidents' en assist puede ser: ASISTENCIA (asistió a tiempo), RETARDO (asistió con retraso), FALTA (no asistió).
+                - RETARDO también cuenta como ASISTENCIA en conteos de asistencias.
+                - Usa COUNT() y GROUP BY para estadísticas.
+                - Para nombres con errores ortográficos (ej. 'Ana Martines' en lugar de 'Ana Martínez'), busca el nombre más similar usando ILIKE en PostgreSQL (ej. WHERE full_name ILIKE '%Ana Martinez%').
+
+                Instrucciones:
+                1. Analiza la pregunta para responder con coherencia y de la mejor forma posible.
+                2. Genera una consulta SQL para validar los datos antes de responder.
+                3. Usa la mejor consulta para evitar respuestas incorrectas.
+                4. Responde en lenguaje natural, siendo claro y conciso sin agregar información que no se pidió.
+                """;
+
+        return Map.of(
+            "prompt", promptContent,
+            "userPrompt", userPrompt,
+            "systemMessage", systemMessage
+        );
+    }
 
     public String audioToText() {
         var audioResource = new ClassPathResource("audioprueba2.mp3");
-        OpenAiAudioTranscriptionOptions options =
-                OpenAiAudioTranscriptionOptions.builder()
-                        .language("es")
-                        .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
-                        .temperature(0f)
-                        .build();
 
-        AudioTranscriptionPrompt prompt =
-                new AudioTranscriptionPrompt(audioResource,options);
+        OpenAiAudioTranscriptionOptions options = OpenAiAudioTranscriptionOptions.builder()
+                .language("es")
+                .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
+                .temperature(0.2f)
+                .build();
 
+        AudioTranscriptionPrompt prompt = new AudioTranscriptionPrompt(audioResource, options);
         AudioTranscriptionResponse response = openAiAudioTranscriptionModel.call(prompt);
         String transcription = response.getResult().getOutput();
         return Normalizer.normalize(transcription, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
