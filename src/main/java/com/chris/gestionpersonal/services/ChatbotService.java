@@ -30,8 +30,12 @@ public class ChatbotService {
 
     public ChatMessage chat(ChatMessage question) {
         ChatResponse response = processChatRequest(question, false);
+        if (response == null || response.getResult() == null || response.getResult().getOutput() == null) {
+            ChatMessage errorMessage = new ChatMessage();
+            errorMessage.setQuestion("Lo siento, no pude procesar tu solicitud en este momento. Por favor, intenta de nuevo.");
+            return errorMessage;
+        }
         String responseText = response.getResult().getOutput().getText();
-
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setQuestion(responseText);
         return chatMessage;
@@ -45,7 +49,7 @@ public class ChatbotService {
         String audioTranscript = response.getResult().getOutput().getText();
         log.info("ChatbotService: Received audio transcript: {}", audioTranscript);
 
-        return response.getResult().getOutput().getMedia().get(0).getDataAsByteArray();
+        return response.getResult().getOutput().getMedia().getFirst().getDataAsByteArray();
     }
 
     private ChatResponse processChatRequest(ChatMessage question, boolean withAudio) {

@@ -42,6 +42,7 @@ public class AssistServiceImpl implements AssistService {
         Employee employee = employeeService.findByEmail(assistDTO.getEmailEmployee());
         Assist assist = assistMapper.assistDTOToAssist(assistDTO);
         assist.setEmployee(employee);
+        assist.setWorkedHours(0);
         assistRepository.save(assist);
         return assistMapper.assistToAssistDTO(assist);
     }
@@ -60,6 +61,7 @@ public class AssistServiceImpl implements AssistService {
 
     @Override
     public byte[] exportAssistDetailsToExcel(String sortBy, String sortDir, Long employeeId, String incidence, LocalDate startDate, LocalDate endDate) {
+        log.info("Exportando detalles de asistencia a Excel", sortBy, sortDir, employeeId, incidence, startDate, endDate);
         Sort sortByAndOrder = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
 
         Specification<Assist> spec = createAssistSpecification(employeeId, incidence, startDate, endDate);
@@ -68,7 +70,7 @@ public class AssistServiceImpl implements AssistService {
         List<AssistDetailsDTO> assistDetailsDTOs = assists.stream()
                 .map(assistMapper::assistToAssistDetailsDTO)
                 .toList();
-
+        log.info("Exportando detalles de asistencia a Excel finalizado", assistDetailsDTOs.size());
         return assistExcelService.createExcel(assistDetailsDTOs);
     }
 
@@ -106,11 +108,12 @@ public class AssistServiceImpl implements AssistService {
 
     private void completeIncompleteAssists(List<Assist> assists, LocalTime exitTime) {
         assistRepository.saveAll(assists.stream()
-                .filter(a -> a.getEntryTime() != null && a.getExitTime() == null)
-                .peek(a -> {
-                    a.setExitTime(exitTime);
-                    a.setWorkedHours((int) ChronoUnit.HOURS.between(a.getEntryTime(), exitTime));
-                    a.setIncidents("ASISTENCIA");
+                .filter(assist -> assist.getEntryTime() != null && assist.getExitTime() == null)
+                .map(assist -> {
+                    assist.setExitTime(exitTime);
+                    assist.setWorkedHours((int) ChronoUnit.HOURS.between(assist.getEntryTime(), exitTime));
+                    assist.setIncidents("ASISTENCIA");
+                    return assist;
                 })
                 .toList());
     }

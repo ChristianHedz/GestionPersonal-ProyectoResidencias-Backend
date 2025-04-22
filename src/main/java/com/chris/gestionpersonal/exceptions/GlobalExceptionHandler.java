@@ -83,4 +83,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ExcelGenerationException.class)
+    public ResponseEntity<ApiResponse> handleExcelGenerationException(ExcelGenerationException ex, WebRequest webRequest) {
+        ApiResponse response = new ApiResponse("Error al generar el archivo Excel",
+                HttpStatus.INTERNAL_SERVER_ERROR, webRequest.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

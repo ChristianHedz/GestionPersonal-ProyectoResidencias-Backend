@@ -1,5 +1,6 @@
 package com.chris.gestionpersonal.services;
 
+import com.chris.gestionpersonal.exceptions.ExcelGenerationException;
 import com.chris.gestionpersonal.models.dto.AssistDetailsDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 public class AssistExcelServiceImpl {
     public byte[] createExcel(List<AssistDetailsDTO> assistDetailsDTOs) {
+        log.info("Generando archivo Excel para las asistencias");
         try (XSSFWorkbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
@@ -40,7 +42,7 @@ public class AssistExcelServiceImpl {
             return outputStream.toByteArray();
         } catch (IOException e) {
             log.error("Error al generar el archivo Excel", e);
-            throw new RuntimeException("Error al generar el archivo Excel", e);
+            throw new ExcelGenerationException("Error al generar el archivo Excel", e);
         }
     }
 
@@ -192,9 +194,13 @@ public class AssistExcelServiceImpl {
         incidenceStyle.cloneStyleFrom(rowStyle);
         incidenceStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         if ("FALTA".equals(assist.getIncidents())) {
-            incidenceStyle.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+            incidenceStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
         } else if ("ASISTENCIA".equals(assist.getIncidents())) {
             incidenceStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+        } else if ("RETARDO".equals(assist.getIncidents())) {
+            incidenceStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        } else {
+            incidenceStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
         }
         incidentsCell.setCellStyle(incidenceStyle);
     }
@@ -209,6 +215,7 @@ public class AssistExcelServiceImpl {
         }
 
         // Congelar panel para mantener las cabeceras visibles
-        sheet.createFreezePane(0, 3);
+        sheet.createFreezePane(1, 3);
+
     }
 }
