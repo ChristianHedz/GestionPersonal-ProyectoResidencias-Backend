@@ -7,6 +7,7 @@ import com.chris.gestionpersonal.exceptions.InvalidDateRangeException;
 import com.chris.gestionpersonal.mapper.AssistMapper;
 import com.chris.gestionpersonal.models.dto.AssistDTO;
 import com.chris.gestionpersonal.models.dto.AssistDetailsDTO;
+import com.chris.gestionpersonal.models.dto.EmployeeAttendanceStats;
 import com.chris.gestionpersonal.models.entity.Assist;
 import com.chris.gestionpersonal.models.entity.Employee;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,11 @@ public class AssistServiceImpl implements AssistService {
         return Specification.where(AssistSpecifications.withEmployeeId(employeeId))
                 .and(AssistSpecifications.withIncidence(incidence))
                 .and(AssistSpecifications.withDateBetween(startDate, endDate));
+    }
+
+    @Override
+    public List<EmployeeAttendanceStats> getEmployeeIncidents(LocalDate startDate, LocalDate endDate) {
+        return assistRepository.findEmployeeAttendanceStatsByDateRange(startDate, endDate);
     }
 
     @Scheduled(cron = "0 5 18 * * ?") // Se ejecuta a las 18:05 todos los días
