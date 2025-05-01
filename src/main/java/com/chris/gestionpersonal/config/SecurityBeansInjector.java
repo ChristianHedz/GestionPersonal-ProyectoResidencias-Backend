@@ -1,6 +1,6 @@
 package com.chris.gestionpersonal.config;
 
-import com.chris.gestionpersonal.Repositories.EmployeeRepository;
+import com.chris.gestionpersonal.repositories.EmployeeRepository;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;

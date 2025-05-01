@@ -1,4 +1,4 @@
-package com.chris.gestionpersonal.Repositories;
+package com.chris.gestionpersonal.repositories;
 
 import com.chris.gestionpersonal.models.entity.Jwt;
 import org.springframework.data.repository.CrudRepository;

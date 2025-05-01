@@ -1,7 +1,6 @@
 package com.chris.gestionpersonal.config;
 
-import com.chris.gestionpersonal.Repositories.TokenRepository;
-import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
+import com.chris.gestionpersonal.repositories.TokenRepository;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Jwt;
 import com.chris.gestionpersonal.services.EmployeeService;
