@@ -21,6 +21,7 @@ public class Employee implements UserDetails {
     private String qrCode;
     private String photo;
     private String password;
+    private Integer availableVacationDays;
     @ManyToOne
     @JoinColumn(name = "status_id",nullable = false)
     private Status status;

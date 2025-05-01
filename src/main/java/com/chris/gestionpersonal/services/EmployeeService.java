@@ -15,4 +15,5 @@ public interface EmployeeService {
     EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO);
     Employee loginGoogle(TokenGoogle tokenDto)throws IOException;
     void sendEmailWithQR(String email,String fullName);
+    List<AvailableVacationsDays> getEmployeeAvailableVacationDay();
 }

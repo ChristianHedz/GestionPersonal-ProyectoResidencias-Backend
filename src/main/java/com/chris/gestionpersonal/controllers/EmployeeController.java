@@ -1,7 +1,7 @@
 package com.chris.gestionpersonal.controllers;
 
 
-import com.chris.gestionpersonal.models.dto.AssistDTO;
+import com.chris.gestionpersonal.models.dto.AvailableVacationsDays;
 import com.chris.gestionpersonal.models.dto.EmployeeDTO;
 import com.chris.gestionpersonal.services.AssistService;
 import com.chris.gestionpersonal.services.AuthService;
@@ -40,5 +40,10 @@ public class EmployeeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/available-vacations")
+    public ResponseEntity<List<AvailableVacationsDays>> getEmployeeAvailableVacationDay() {
+        List<AvailableVacationsDays> availableVacationDays = employeeService.getEmployeeAvailableVacationDay();
+        return new ResponseEntity<>(availableVacationDays, HttpStatus.OK);
+    }
 
 }

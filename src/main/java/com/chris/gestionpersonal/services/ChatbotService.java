@@ -82,7 +82,7 @@ public class ChatbotService {
         String userPrompt = "Responde a esta pregunta usando solo las columnas existentes en las tablas mencionadas: " + question.getQuestion();
         String systemMessage = """
                 Eres un asistente que responde preguntas sobre una base de datos con las siguientes tablas:
-                - employee (id, full_name, email, role_id, status_id)
+                - employee (id, full_name, email, phone, available_vacation_days, status_id, role_id)
                 - role (id, name)
                 - status (id, name)
                 - assist (employee_id, date, entry_time, exit_time, worked_hours, incidents, reason)

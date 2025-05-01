@@ -1,14 +1,12 @@
 package com.chris.gestionpersonal.services;
 
-import com.chris.gestionpersonal.Repositories.AssistRepository;
-import com.chris.gestionpersonal.Repositories.EmployeeRepository;
-import com.chris.gestionpersonal.Repositories.RoleRepository;
-import com.chris.gestionpersonal.Repositories.StatusRepository;
+import com.chris.gestionpersonal.repositories.EmployeeRepository;
+import com.chris.gestionpersonal.repositories.RoleRepository;
+import com.chris.gestionpersonal.repositories.StatusRepository;
 import com.chris.gestionpersonal.exceptions.EmailAlreadyRegisteredException;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.EmployeeMapper;
 import com.chris.gestionpersonal.models.dto.*;
-import com.chris.gestionpersonal.models.entity.Assist;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Role;
 import com.chris.gestionpersonal.models.entity.Status;
@@ -147,6 +145,11 @@ public class EmployeeServiceImpl implements  EmployeeService {
                     sendEmailWithQR(email,name);
                     return employeeRepository.save(newEmployee);
                 });
+    }
+
+    @Override
+    public List<AvailableVacationsDays> getEmployeeAvailableVacationDay() {
+        return employeeRepository.findEmployeeFullNameAndAvailableVacationDays();
     }
 
 }

@@ -49,6 +49,10 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/process-assists").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details/excel").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts/attendance-stats").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts/worked-hours").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/available-vacations").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"chat").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"chat/audio").permitAll();
                     authorizeRequest.anyRequest().authenticated();

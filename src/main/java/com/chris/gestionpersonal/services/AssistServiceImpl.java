@@ -1,13 +1,11 @@
 package com.chris.gestionpersonal.services;
 
-import com.chris.gestionpersonal.Repositories.AssistRepository;
-import com.chris.gestionpersonal.Repositories.AssistSpecifications;
-import com.chris.gestionpersonal.Repositories.EmployeeRepository;
+import com.chris.gestionpersonal.models.dto.*;
+import com.chris.gestionpersonal.repositories.AssistRepository;
+import com.chris.gestionpersonal.repositories.AssistSpecifications;
+import com.chris.gestionpersonal.repositories.EmployeeRepository;
 import com.chris.gestionpersonal.exceptions.InvalidDateRangeException;
 import com.chris.gestionpersonal.mapper.AssistMapper;
-import com.chris.gestionpersonal.models.dto.AssistDTO;
-import com.chris.gestionpersonal.models.dto.AssistDetailsDTO;
-import com.chris.gestionpersonal.models.dto.EmployeeAttendanceStats;
 import com.chris.gestionpersonal.models.entity.Assist;
 import com.chris.gestionpersonal.models.entity.Employee;
 import lombok.RequiredArgsConstructor;
@@ -138,6 +136,16 @@ public class AssistServiceImpl implements AssistService {
         absence.setIncidents("FALTA");
         absence.setWorkedHours(0);
         return absence;
+    }
+
+    @Override
+    public AttendanceSummaryDTO totalAbsencesAndTardinessByDateRange(LocalDate startDate, LocalDate endDate) {
+        return assistRepository.findTotalAbsencesAndTardinessByDateRange(startDate, endDate);
+    }
+
+    @Override
+    public List<EmployeeWorkedHoursDTO> getAllEmployeesWorkedHours(LocalDate startDate, LocalDate endDate) {
+        return assistRepository.findEmployeeWorkedHoursByDateRange(startDate, endDate);
     }
 
 

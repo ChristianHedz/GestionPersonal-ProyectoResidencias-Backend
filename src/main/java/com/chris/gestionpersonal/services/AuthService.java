@@ -1,13 +1,12 @@
 package com.chris.gestionpersonal.services;
 
-import com.chris.gestionpersonal.Repositories.EmployeeRepository;
-import com.chris.gestionpersonal.Repositories.TokenRepository;
+import com.chris.gestionpersonal.repositories.EmployeeRepository;
+import com.chris.gestionpersonal.repositories.TokenRepository;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.EmployeeMapper;
 import com.chris.gestionpersonal.models.dto.*;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.models.entity.Jwt;
-import com.google.zxing.WriterException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,12 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.File;
-import java.nio.file.Files;
 
 @Slf4j
 @Service
