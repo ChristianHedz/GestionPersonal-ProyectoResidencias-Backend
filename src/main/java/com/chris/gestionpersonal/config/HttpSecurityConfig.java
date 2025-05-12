@@ -55,6 +55,14 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/available-vacations").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"chat").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"chat/audio").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/calendar-events").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.PUT,"api/v1/calendar-events/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.DELETE,"api/v1/calendar-events/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/employee/{employeeId}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/date-range").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/employee/{employeeId}/date-range").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }

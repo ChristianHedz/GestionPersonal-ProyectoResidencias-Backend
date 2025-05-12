@@ -25,11 +25,11 @@ VALUES ('2025-04-04', '9:00:00', '17:00:00', 'FALTA',null,  8,
 -- Insertar 5 nuevos empleados con días de vacaciones
 INSERT INTO employee (full_name, email, phone, password, role_id, status_id, available_vacation_days)
 VALUES
-    ('Juan Perez', 'juan.perez@gmail.com', '5551234567',
+    ('Juan Perez', 'cristian.28hedz@gmail.com', '5551234567',
      '$2a$10$ywh1O2EwghHmFIMGeHgsx.9lMw5IXpg4jafeFS.Oi6nFv0181gHli',
      (SELECT id FROM role WHERE name = 'EMPLOYEE'),
      (SELECT id FROM status WHERE name = 'ACTIVO'),
-     5), -- Valor inicial de días de vacaciones
+     3), -- Valor inicial de días de vacaciones
 
     ('Maria Lopez', 'maria.lopez@gmail.com', '5552345678',
      '$2a$10$ywh1O2EwghHmFIMGeHgsx.9lMw5IXpg4jafeFS.Oi6nFv0181gHli',

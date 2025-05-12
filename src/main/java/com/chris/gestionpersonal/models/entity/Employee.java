@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,6 +33,8 @@ public class Employee implements UserDetails {
     private Role role;
     @OneToMany(cascade = CascadeType.ALL,fetch =  FetchType.LAZY)
     private List<Assist> assists;
+    @ManyToMany(mappedBy = "employees", fetch = FetchType.LAZY)
+    private Set<CalendarEvent> events = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
