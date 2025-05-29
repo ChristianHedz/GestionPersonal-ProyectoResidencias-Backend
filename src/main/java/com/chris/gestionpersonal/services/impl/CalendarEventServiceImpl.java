@@ -30,23 +30,12 @@ public class CalendarEventServiceImpl implements CalendarEventService {
     private final EmailService emailService;
 
     @Override
+    @Transactional
     public CalendarEventDTO createEvent(CalendarEventDTO calendarEventDTO) {
         log.info("Creating calendar event: {}", calendarEventDTO);
-
         CalendarEvent calendarEvent = calendarEventMapper.toEntity(calendarEventDTO);
-        if (calendarEventDTO.getEmployeeIds() != null && !calendarEventDTO.getEmployeeIds().isEmpty()) {
-            Set<Employee> employees = calendarEventDTO.getEmployeeIds().stream()
-                    .map(employeeRepository::findById)
-                    .filter(Optional::isPresent)
-                    .peek(optional -> log.info("Employee found: {}", optional.get()))
-                    .map(Optional::get)
-                    .collect(Collectors.toSet());
-
-            calendarEvent.setEmployees(employees);
-        }
-
-        CalendarEvent savedEvent = calendarEventRepository.save(calendarEvent);
-
+        CalendarEvent savedEvent = employeeIdsToEmployees(calendarEventDTO, calendarEvent);
+        log.info("Created calendar event with id: {}", savedEvent.getId());
         if (!savedEvent.getEmployees().isEmpty()) {
             Map<String, String> emailsAndNames = savedEvent.getEmployees().stream()
                     .collect(Collectors.toMap(Employee::getEmail, Employee::getFullName));
@@ -56,6 +45,18 @@ public class CalendarEventServiceImpl implements CalendarEventService {
         return calendarEventMapper.toDTO(savedEvent);
     }
 
+    private CalendarEvent employeeIdsToEmployees(CalendarEventDTO calendarEventDTO, CalendarEvent calendarEvent) {
+        if (calendarEventDTO.getEmployeeIds() != null && !calendarEventDTO.getEmployeeIds().isEmpty()) {
+            Set<Employee> employees = new HashSet<>();
+            for (Long employeeId : calendarEventDTO.getEmployeeIds()) {
+                employeeRepository.findById(employeeId).ifPresent(employees::add);
+            }
+            calendarEvent.setEmployees(employees);
+        }
+
+        return calendarEventRepository.save(calendarEvent);
+    }
+
 
     @Override
     @Transactional
@@ -63,17 +64,12 @@ public class CalendarEventServiceImpl implements CalendarEventService {
         CalendarEvent existingEvent = calendarEventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Calendar event not found with id: " + id));
 
-        calendarEventMapper.updateEntityFromDto(calendarEventDTO, existingEvent);
-
-        if (calendarEventDTO.getEmployeeIds() != null && !calendarEventDTO.getEmployeeIds().isEmpty()) {
-            Set<Employee> employees = new HashSet<>();
-            for (Long employeeId : calendarEventDTO.getEmployeeIds()) {
-                employeeRepository.findById(employeeId).ifPresent(employees::add);
-            }
-            existingEvent.setEmployees(employees);
-        }
-
-        CalendarEvent updatedEvent = calendarEventRepository.save(existingEvent);
+        existingEvent.setTitle(calendarEventDTO.getTitle());
+        existingEvent.setDescription(calendarEventDTO.getDescription());
+        existingEvent.setStartDate(calendarEventDTO.getStartDate());
+        existingEvent.setEndDate(calendarEventDTO.getEndDate());
+        existingEvent.setEventType(calendarEventDTO.getEventType());
+        CalendarEvent updatedEvent = employeeIdsToEmployees(calendarEventDTO, existingEvent);
         return calendarEventMapper.toDTO(updatedEvent);
     }
 
@@ -97,10 +93,15 @@ public class CalendarEventServiceImpl implements CalendarEventService {
     @Override
     @Transactional(readOnly = true)
     public List<CalendarEventDTO> getAllEvents() {
-        List<CalendarEvent> events = calendarEventRepository.findAll();
-        return events.stream()
-                .map(calendarEventMapper::toDTO)
-                .toList();
+        try {
+            List<CalendarEvent> events = calendarEventRepository.findAll();
+            return events.stream()
+                    .map(calendarEventMapper::toDTO)
+                    .toList();
+        } catch (Exception e) {
+            log.error("Error retrieving all calendar events", e);
+            throw new RuntimeException("Failed to retrieve all calendar events due to an unexpected error.", e);
+        }
     }
 
     @Override
