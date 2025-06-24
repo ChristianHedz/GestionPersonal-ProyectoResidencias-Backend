@@ -25,6 +25,7 @@ public class Employee implements UserDetails {
     private String email;
     private String phone;
     private String qrCode;
+    @Column(length = 1000)
     private String photo;
     private String password;
     private Integer availableVacationDays;

@@ -53,8 +53,8 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts/attendance-stats").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts/worked-hours").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/available-vacations").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"chat").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"chat/audio").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/chat").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/chat/audio").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/calendar-events").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.PUT,"api/v1/calendar-events/{id}").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.DELETE,"api/v1/calendar-events/{id}").permitAll();
@@ -63,6 +63,9 @@ public class HttpSecurityConfig {
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/employee/{employeeId}").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/date-range").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/employee/{employeeId}/date-range").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/employee/{id}/upload-photo").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.DELETE,"api/v1/employee/{id}/delete-photo").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/employee/{id}/debug-photo").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }

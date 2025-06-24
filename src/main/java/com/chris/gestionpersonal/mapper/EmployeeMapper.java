@@ -22,6 +22,7 @@ public interface EmployeeMapper {
     Employee registerDTOToEmployee(RegisterDTO registerDTO);
 
     @Mapping(target = "status", source = "status.name")
+    @Mapping(target = "photo", source = "photo")
     EmployeeDTO employeeToEmployeeDTO(Employee employee);
 
     @Mapping(target = "role", source = "role.name")

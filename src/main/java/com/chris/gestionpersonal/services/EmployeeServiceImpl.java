@@ -92,7 +92,22 @@ public class EmployeeServiceImpl implements  EmployeeService {
     }
 
     public List<EmployeeDTO> listAllEmployees() {
-        List<EmployeeDTO> employeeList = employeeMapper.employeeListToEmployeeDTOList(employeeRepository.findAll());
+        List<Employee> employees = employeeRepository.findAll();
+        
+        // Debug: verificar si las entidades tienen fotos
+        employees.forEach(emp -> {
+            log.info("Employee ID: {}, Name: {}, Photo: {}", 
+                emp.getId(), emp.getFullName(), emp.getPhoto());
+        });
+        
+        List<EmployeeDTO> employeeList = employeeMapper.employeeListToEmployeeDTOList(employees);
+        
+        // Debug: verificar si los DTOs tienen fotos
+        employeeList.forEach(dto -> {
+            log.info("EmployeeDTO ID: {}, Name: {}, Photo: {}", 
+                dto.getId(), dto.getFullName(), dto.getPhoto());
+        });
+        
         if (employeeList.isEmpty()){
             throw new ResourceNotFoundException("Employees");
         }
@@ -104,11 +119,30 @@ public class EmployeeServiceImpl implements  EmployeeService {
         employee.setFullName(employeeDTO.getFullName());
         employee.setEmail(employeeDTO.getEmail());
         employee.setPhone(employeeDTO.getPhone());
+
+        // Solo actualizar la foto si se proporciona una nueva
+        if (employeeDTO.getPhoto() != null) {
+            employee.setPhoto(employeeDTO.getPhoto());
+        }
+
         Status status = statusRepository.findByName(employeeDTO.getStatus())
                 .orElseThrow(() -> new ResourceNotFoundException("status","name",employeeDTO.getStatus()));
         employee.setStatus(status);
         employeeRepository.save(employee);
         return employeeMapper.employeeToEmployeeDTO(employee);
+    }
+
+    @Override
+    public EmployeeDTO getEmployeeById(Long id) {
+        Employee employee = this.findById(id);
+        log.info("Employee found - ID: {}, Name: {}, Photo: {}", 
+            employee.getId(), employee.getFullName(), employee.getPhoto());
+        
+        EmployeeDTO dto = employeeMapper.employeeToEmployeeDTO(employee);
+        log.info("EmployeeDTO mapped - ID: {}, Name: {}, Photo: {}", 
+            dto.getId(), dto.getFullName(), dto.getPhoto());
+        
+        return dto;
     }
 
     @Override
@@ -150,6 +184,18 @@ public class EmployeeServiceImpl implements  EmployeeService {
     @Override
     public List<AvailableVacationsDays> getEmployeeAvailableVacationDay() {
         return employeeRepository.findEmployeeFullNameAndAvailableVacationDays();
+    }
+
+    // Método helper para mapping manual si MapStruct falla
+    private EmployeeDTO mapEmployeeToDTO(Employee employee) {
+        EmployeeDTO dto = new EmployeeDTO();
+        dto.setId(employee.getId());
+        dto.setFullName(employee.getFullName());
+        dto.setEmail(employee.getEmail());
+        dto.setPhone(employee.getPhone());
+        dto.setPhoto(employee.getPhoto()); // Mapping explícito
+        dto.setStatus(employee.getStatus() != null ? employee.getStatus().getName() : null);
+        return dto;
     }
 
 }

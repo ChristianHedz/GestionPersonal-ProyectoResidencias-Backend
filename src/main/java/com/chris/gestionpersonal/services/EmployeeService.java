@@ -13,6 +13,7 @@ public interface EmployeeService {
     Employee register(RegisterDTO registerDTO);
     List<EmployeeDTO> listAllEmployees();
     EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO);
+    EmployeeDTO getEmployeeById(Long id);
     Employee loginGoogle(TokenGoogle tokenDto)throws IOException;
     void sendEmailWithQR(String email,String fullName);
     List<AvailableVacationsDays> getEmployeeAvailableVacationDay();
