@@ -5,7 +5,6 @@ import com.chris.gestionpersonal.services.ChatbotService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
+@RequestMapping("/api/v1")
 public class ChatController {
     private final ChatbotService chatbotService;
 
@@ -25,7 +25,8 @@ public class ChatController {
 
     @PostMapping("/chat/audio")
     public ResponseEntity<byte[]> chatAudioStreamPreview(@RequestParam("audio") MultipartFile audioFile) {
-        String audioTranscription = chatbotService.audioToText();
+        log.info("ChatController: Received audio file for transcription: {}", audioFile.getOriginalFilename());
+        String audioTranscription = chatbotService.audioToText(audioFile);
         log.info("ChatController: Received audio transcription: {}", audioTranscription);
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setQuestion(audioTranscription);

@@ -15,6 +15,7 @@ import org.springframework.ai.openai.api.OpenAiAudioApi;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.Normalizer;
 import java.util.List;
@@ -84,6 +85,8 @@ public class ChatbotService {
                 Eres un asistente que responde preguntas sobre una base de datos con las siguientes tablas:
                 - employee (id, full_name, email, phone, available_vacation_days, status_id, role_id)
                 - role (id, name)
+                - calendar_event (id, title, description, start_date, end_date, event_type)
+                - calendar_event_employees (calendar_event_id, employee_id) - tabla intermedia para relacionar eventos con empleados
                 - status (id, name)
                 - assist (employee_id, date, entry_time, exit_time, worked_hours, incidents, reason)
 
@@ -92,6 +95,7 @@ public class ChatbotService {
                 - RETARDO también cuenta como ASISTENCIA en conteos de asistencias.
                 - Usa COUNT() y GROUP BY para estadísticas.
                 - Para nombres con errores ortográficos (ej. 'Ana Martines' en lugar de 'Ana Martínez'), busca el nombre más similar usando ILIKE en PostgreSQL (ej. WHERE full_name ILIKE '%Ana Martinez%').
+                - Para consultar eventos y empleados relacionados, usa JOINs con la tabla calendar_event_employees.
 
                 Instrucciones:
                 1. Analiza la pregunta para responder con coherencia y de la mejor forma posible.
@@ -107,18 +111,29 @@ public class ChatbotService {
         );
     }
 
-    public String audioToText() {
-        var audioResource = new ClassPathResource("audioprueba2.mp3");
+    public String audioToText(MultipartFile audioFile) {
+        try {
+            // Convertir el MultipartFile a ByteArrayResource
+            ByteArrayResource audioResource = new ByteArrayResource(audioFile.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return audioFile.getOriginalFilename();
+                }
+            };
 
-        OpenAiAudioTranscriptionOptions options = OpenAiAudioTranscriptionOptions.builder()
-                .language("es")
-                .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
-                .temperature(0.2f)
-                .build();
+            OpenAiAudioTranscriptionOptions options = OpenAiAudioTranscriptionOptions.builder()
+                    .language("es")
+                    .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
+                    .temperature(0.2f)
+                    .build();
 
-        AudioTranscriptionPrompt prompt = new AudioTranscriptionPrompt(audioResource, options);
-        AudioTranscriptionResponse response = openAiAudioTranscriptionModel.call(prompt);
-        String transcription = response.getResult().getOutput();
-        return Normalizer.normalize(transcription, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+            AudioTranscriptionPrompt prompt = new AudioTranscriptionPrompt(audioResource, options);
+            AudioTranscriptionResponse response = openAiAudioTranscriptionModel.call(prompt);
+            String transcription = response.getResult().getOutput();
+            return Normalizer.normalize(transcription, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        } catch (Exception e) {
+            log.error("ChatbotService: Error processing audio file: {}", e.getMessage());
+            throw new RuntimeException("Error procesando el archivo de audio", e);
+        }
     }
 }
