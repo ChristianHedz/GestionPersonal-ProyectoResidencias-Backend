@@ -90,4 +90,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiResponse> handleInvalidFileException(InvalidFileException ex, WebRequest webRequest) {
+        ApiResponse response = new ApiResponse("Archivo inválido",
+                HttpStatus.BAD_REQUEST, webRequest.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ApiResponse> handleFileUploadException(FileUploadException ex, WebRequest webRequest) {
+        ApiResponse response = new ApiResponse("Error al subir el archivo",
+                HttpStatus.INTERNAL_SERVER_ERROR, webRequest.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ApiResponse> handleFileStorageException(FileStorageException ex, WebRequest webRequest) {
+        ApiResponse response = new ApiResponse("Error en el almacenamiento de archivos",
+                HttpStatus.INTERNAL_SERVER_ERROR, webRequest.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }
