@@ -1,0 +1,106 @@
+
+spring:
+  application:
+    name: Gestionpersonal-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gestionpersonal
+    username: postgres
+    password: 123
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  messages:
+    basename: messages
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  ai:
+    openai:
+      api-key: ${OPENAPI_KEY}
+      retry:
+        max-attempts: 3
+        backoff:
+          initial-interval: 1000  # 1 second
+          multiplier: 2.0  # Exponential backoff
+          max-interval: 10000  # Max 10 seconds
+    mcp:
+      client:
+        stdio:
+          connections:
+            postgresql:
+#              command: "${NPX_COMMAND:npx}"
+              command: "C:/nvm4w/nodejs/npx.cmd"
+              args:
+                - "-y"
+                - "@modelcontextprotocol/server-postgres"
+                - "postgresql://postgres:123@localhost:5432/gestionpersonal"
+server:
+  port: 8081
+
+# Actuator Configuration - Production Ready
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics"  # Solo endpoints esenciales para producción
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always # Solo muestra detalles si está autorizado
+      show-components: always
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+  info:
+    env:
+      enabled: false  # No exponer variables de entorno en producción
+    java:
+      enabled: true
+    os:
+      enabled: false  # No exponer detalles del SO en producción
+  security:
+    enabled: true  # Habilitar seguridad para endpoints
+
+default:
+  role: EMPLOYEE
+
+jwt:
+  expiration:
+    minutes: 60
+  secret:
+    key: aG9sYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=
+
+qrcode:
+  storage:
+    path: src/main/resources/static/qrCodes/
+
+email:
+  sender: cristian.28hedz@gmail.com
+  password: ${EMAIL_PASSWORD:acvdqbeanhzbkqtd}
+
+google:
+  clientId: ${GOOGLE_CLIENT_ID}
+  secretId: ${GOOGLE_SECRET_ID}
+
+secretPsw: ${SECRET_PSW:P@sswOrd123!R@nd0m}
+
+# AWS S3 Configuration
+aws:
+  s3:
+    bucket-name: ${AWS_S3_BUCKET_NAME}
+    region: ${AWS_REGION}
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    url-expiration-hours: 24
