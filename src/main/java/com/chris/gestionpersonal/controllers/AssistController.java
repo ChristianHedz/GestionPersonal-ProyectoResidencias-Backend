@@ -4,6 +4,13 @@ import com.chris.gestionpersonal.config.AppConstants.Pagination;
 import com.chris.gestionpersonal.models.dto.AssistDTO;
 import com.chris.gestionpersonal.models.dto.AssistDetailsDTO;
 import com.chris.gestionpersonal.services.AssistService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+@Tag(name = "Attendance Management", description = "Endpoints para gestión de asistencias")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -22,6 +30,19 @@ public class AssistController {
 
     private final AssistService assistService;
 
+    @Operation(summary = "Obtener detalles de asistencias paginados", description = "Obtiene una lista paginada de detalles de asistencias con filtros opcionales")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "Detalles de asistencias obtenidos exitosamente",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = AssistDetailsDTO.class))
+                    }),
+            @ApiResponse(responseCode = "400", description = "Parámetros de paginación inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @SecurityRequirement(name = "Security Token")
     @GetMapping("/assist-details")
     public ResponseEntity<Page<AssistDetailsDTO>> getAllAssistDetailsPaginated(
             @RequestParam(defaultValue = Pagination.PAGE_NUMBER) int page,
@@ -41,6 +62,14 @@ public class AssistController {
         return new ResponseEntity<>(assistDetailsPage, HttpStatus.OK);
     }
 
+    @Operation(summary = "Exportar asistencias a Excel", description = "Exporta los detalles de asistencias a un archivo Excel con filtros opcionales")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Archivo Excel generado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Parámetros de filtro inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @SecurityRequirement(name = "Security Token")
     @GetMapping("/assist-details/excel")
     public ResponseEntity<byte[]> exportAssistDetailsToExcel(
             @RequestParam(defaultValue = Pagination.SORT_BY) String sortBy,
@@ -58,6 +87,19 @@ public class AssistController {
                 .body(excelData);
     }
 
+    @Operation(summary = "Registrar asistencia", description = "Registra una nueva asistencia para un empleado")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "Asistencia registrada exitosamente",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = AssistDTO.class))
+                    }),
+            @ApiResponse(responseCode = "400", description = "Datos de asistencia inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @SecurityRequirement(name = "Security Token")
     @PostMapping("/assist")
     public ResponseEntity<AssistDTO> assist(@RequestBody AssistDTO assistDTO){
         log.info("assist", assistDTO);
@@ -65,6 +107,13 @@ public class AssistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Procesar asistencias diarias", description = "Ejecuta el proceso de cálculo y análisis de asistencias diarias")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Proceso ejecutado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @SecurityRequirement(name = "Security Token")
     @GetMapping("/process-assists")
     public ResponseEntity<String> testProcessAssists() {
         assistService.processDailyAssists();

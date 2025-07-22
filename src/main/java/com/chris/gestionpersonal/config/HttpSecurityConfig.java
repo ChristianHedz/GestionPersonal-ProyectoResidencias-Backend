@@ -36,36 +36,45 @@ public class HttpSecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider)
                 .authorizeHttpRequests(authorizeRequest -> {
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/register").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/login").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.PUT,"api/v1/employee/{id}").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/profile").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/employees").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/logout").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/sendMessage").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/sendMessageFile").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/assist").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/authGoogle").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/process-assists").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/assist-details/excel").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts/attendance-stats").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/charts/worked-hours").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/available-vacations").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/chat").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/chat/audio").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/calendar-events").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.PUT,"api/v1/calendar-events/{id}").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.DELETE,"api/v1/calendar-events/{id}").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/{id}").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/employee/{employeeId}").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/date-range").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/calendar-events/employee/{employeeId}/date-range").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.POST,"api/v1/employee/{id}/upload-photo").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.DELETE,"api/v1/employee/{id}/delete-photo").permitAll();
-                    authorizeRequest.requestMatchers(HttpMethod.GET,"api/v1/employee/{id}/debug-photo").permitAll();
+                    // Actuator endpoints
+                    authorizeRequest.requestMatchers("/").permitAll();
+                    authorizeRequest.requestMatchers("/actuator/info").permitAll();
+                    authorizeRequest.requestMatchers("/actuator/metrics").permitAll();
+                    authorizeRequest.requestMatchers("/actuator/health").permitAll();
+                    // Swagger endpoints
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/swagger-ui/**").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/v3/api-docs/**").permitAll();
+                    // API endpoints
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/register").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/login").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.PUT,"/api/v1/employee/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/profile").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/employees").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/logout").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/sendMessage").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/sendMessageFile").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/assist").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/authGoogle").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/process-assists").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/assist-details").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/assist-details/excel").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/charts").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/charts/attendance-stats").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/charts/worked-hours").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/available-vacations").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/chat").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/chat/audio").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/calendar-events").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.PUT,"/api/v1/calendar-events/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.DELETE,"/api/v1/calendar-events/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/calendar-events/{id}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/calendar-events").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/calendar-events/employee/{employeeId}").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/calendar-events/date-range").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/calendar-events/employee/{employeeId}/date-range").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.POST,"/api/v1/employee/{id}/upload-photo").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.DELETE,"/api/v1/employee/{id}/delete-photo").permitAll();
+                    authorizeRequest.requestMatchers(HttpMethod.GET,"/api/v1/employee/{id}/debug-photo").permitAll();
                     authorizeRequest.anyRequest().authenticated();
                 }).build();
     }
@@ -73,7 +82,15 @@ public class HttpSecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://127.0.0.1:5173", "http://localhost:5173/","http://localhost:4200"));
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://127.0.0.1:5500/",
+            "http://127.0.0.1:5173/",
+            "http://localhost:5173/",
+            "http://localhost:4200/",
+            "http://localhost:8081/",
+            "http://gestion-personal-env.eba-mis33s3b.us-east-1.elasticbeanstalk.com/",
+            "https://gestion-personal-env.eba-mis33s3b.us-east-1.elasticbeanstalk.com/"
+        ));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
