@@ -31,27 +31,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> jwt = jwtService.extractJwtFromCookie(request);
-        if(jwt.isEmpty()){
-            filterChain.doFilter(request,response);
-            return;
+        try {
+            Optional<String> jwt = jwtService.extractJwtFromCookie(request);
+            if(jwt.isEmpty()){
+                filterChain.doFilter(request,response);
+                return;
+            }
+            
+            Optional<Jwt> findToken = tokenRepository.findByToken(jwt.get());
+            boolean isValid = validateToken(findToken);
+            if(!isValid){
+                findToken.ifPresent(this::updateTokenStatus);
+                filterChain.doFilter(request,response);
+                return;
+            }
+            
+            String email = jwtService.extractEmail(jwt.get());
+            log.info("Empleado autenticado: {}", email);
+            Employee employee = employeeService.findByEmail(email);
+            
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                    = new UsernamePasswordAuthenticationToken(email,null, employee.getAuthorities());
+            usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            
+        } catch (Exception e) {
+            // Si hay cualquier error procesando el JWT, continuar sin autenticación
+            // Esto permite que los endpoints públicos funcionen correctamente
+            log.warn("Error procesando JWT: {}", e.getMessage());
         }
-        Optional<Jwt> findToken = tokenRepository.findByToken(jwt.get());
-        boolean isValid = validateToken(findToken);
-        if(!isValid){
-            findToken.ifPresent(this::updateTokenStatus);
-            filterChain.doFilter(request,response);
-            return;
-        }
-        String email = jwtService.extractEmail(jwt.get());
-        log.info("probando empleado encontrado");
-        Employee employee = employeeService.findByEmail(email);
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                = new UsernamePasswordAuthenticationToken(email,null, employee.getAuthorities());
-        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        
         filterChain.doFilter(request,response);
-
     }
 
     private boolean validateToken(Optional<Jwt> optionalToken) {
