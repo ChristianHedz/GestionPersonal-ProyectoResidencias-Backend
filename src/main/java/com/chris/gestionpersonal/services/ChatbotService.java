@@ -13,7 +13,6 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

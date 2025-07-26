@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface AssistMapper {
     Assist assistDTOToAssist(AssistDTO assistDTO);
     AssistDTO assistToAssistDTO(Assist assist);
-    @Mapping(target = "fullName", source = "employee.fullName")
+    
+    @Mapping(source = "employee.fullName", target = "fullName")
     AssistDetailsDTO assistToAssistDetailsDTO(Assist assist);
 }

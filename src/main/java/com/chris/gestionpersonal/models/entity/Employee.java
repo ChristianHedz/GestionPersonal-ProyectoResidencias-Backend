@@ -1,7 +1,6 @@
 package com.chris.gestionpersonal.models.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.util.Collection;
 import java.util.HashSet;

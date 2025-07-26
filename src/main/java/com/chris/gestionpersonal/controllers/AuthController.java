@@ -2,7 +2,6 @@ package com.chris.gestionpersonal.controllers;
 
 import com.chris.gestionpersonal.models.dto.*;
 import com.chris.gestionpersonal.services.AuthService;
-import com.chris.gestionpersonal.services.EmployeeService;
 import com.google.zxing.WriterException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
-import java.util.List;
 
 @Tag(name = "Authentication", description = "Endpoints para autenticación de usuarios")
 @Slf4j
@@ -31,7 +28,6 @@ import java.util.List;
 public class AuthController {
 
     private final AuthService authService;
-    private final EmployeeService employeeService;
 
     @Operation(summary = "Iniciar sesión", description = "Autentica un usuario con email y contraseña")
     @ApiResponses(value = {

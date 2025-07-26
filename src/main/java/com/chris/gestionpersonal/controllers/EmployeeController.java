@@ -3,8 +3,6 @@ package com.chris.gestionpersonal.controllers;
 
 import com.chris.gestionpersonal.models.dto.AvailableVacationsDays;
 import com.chris.gestionpersonal.models.dto.EmployeeDTO;
-import com.chris.gestionpersonal.services.AssistService;
-import com.chris.gestionpersonal.services.AuthService;
 import com.chris.gestionpersonal.services.EmployeeService;
 import com.chris.gestionpersonal.services.PhotoStorageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +29,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class EmployeeController {
 
-    private final AuthService authService;
     private final EmployeeService employeeService;
-    private final AssistService assistService;
     private final PhotoStorageService photoStorageService;
 
     @Operation(summary = "Obtener todos los empleados", description = "Obtiene la lista completa de empleados")

@@ -34,8 +34,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final TokenRepository tokenRepository;
-    private final QrCodeService qrCodeService;
-    private final EmailService emailService;
     private static final String EMAIL = "email";
 
     public AuthResponse login(LoginDTO loginDTO, HttpServletResponse httpResponse ) {

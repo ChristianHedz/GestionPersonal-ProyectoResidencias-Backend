@@ -4,7 +4,6 @@ import com.chris.gestionpersonal.exceptions.EventServiceException;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.CalendarEventMapper;
 import com.chris.gestionpersonal.models.dto.CalendarEventDTO;
-import com.chris.gestionpersonal.models.dto.EmailDTO;
 import com.chris.gestionpersonal.models.entity.CalendarEvent;
 import com.chris.gestionpersonal.models.entity.Employee;
 import com.chris.gestionpersonal.repositories.CalendarEventRepository;

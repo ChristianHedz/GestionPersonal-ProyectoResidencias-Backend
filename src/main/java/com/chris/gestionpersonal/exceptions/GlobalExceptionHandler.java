@@ -14,9 +14,6 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
-import com.chris.gestionpersonal.exceptions.EventServiceException;
-import com.chris.gestionpersonal.exceptions.FileUploadException;
-import com.chris.gestionpersonal.exceptions.InvalidDateRangeException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

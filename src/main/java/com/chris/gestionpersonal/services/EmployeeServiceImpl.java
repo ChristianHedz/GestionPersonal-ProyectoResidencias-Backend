@@ -186,16 +186,4 @@ public class EmployeeServiceImpl implements  EmployeeService {
         return employeeRepository.findEmployeeFullNameAndAvailableVacationDays();
     }
 
-    // Método helper para mapping manual si MapStruct falla
-    private EmployeeDTO mapEmployeeToDTO(Employee employee) {
-        EmployeeDTO dto = new EmployeeDTO();
-        dto.setId(employee.getId());
-        dto.setFullName(employee.getFullName());
-        dto.setEmail(employee.getEmail());
-        dto.setPhone(employee.getPhone());
-        dto.setPhoto(employee.getPhoto()); // Mapping explícito
-        dto.setStatus(employee.getStatus() != null ? employee.getStatus().getName() : null);
-        return dto;
-    }
-
 }
