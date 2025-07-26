@@ -1,5 +1,6 @@
 package com.chris.gestionpersonal.services.impl;
 
+import com.chris.gestionpersonal.exceptions.EventServiceException;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
 import com.chris.gestionpersonal.mapper.CalendarEventMapper;
 import com.chris.gestionpersonal.models.dto.CalendarEventDTO;
@@ -100,7 +101,7 @@ public class CalendarEventServiceImpl implements CalendarEventService {
                     .toList();
         } catch (Exception e) {
             log.error("Error retrieving all calendar events", e);
-            throw new RuntimeException("Failed to retrieve all calendar events due to an unexpected error.", e);
+            throw new EventServiceException("Failed to retrieve all calendar events due to an unexpected error.", e);
         }
     }
 

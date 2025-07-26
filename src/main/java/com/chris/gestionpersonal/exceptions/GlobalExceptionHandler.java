@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
+import com.chris.gestionpersonal.exceptions.EventServiceException;
+import com.chris.gestionpersonal.exceptions.FileUploadException;
+import com.chris.gestionpersonal.exceptions.InvalidDateRangeException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -111,4 +114,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    
+    @ExceptionHandler(EventServiceException.class)
+    public ResponseEntity<ApiResponse> handleEventServiceException(EventServiceException ex, WebRequest webRequest) {
+        ApiResponse response = new ApiResponse("Ocurrió un error en el servicio de eventos",
+                HttpStatus.INTERNAL_SERVER_ERROR, webRequest.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
