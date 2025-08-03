@@ -39,8 +39,7 @@ spring:
         stdio:
           connections:
             postgresql:
-#              command: "${NPX_COMMAND:npx}"
-              command: "npx"
+              command: "${NPX_COMMAND:npx}"
               args:
                 - "-y"
                 - "@modelcontextprotocol/server-postgres"
@@ -88,13 +87,13 @@ qrcode:
 
 email:
   sender: cristian.28hedz@gmail.com
-  password: ${EMAIL_PASSWORD:acvdqbeanhzbkqtd}
+  password: ${EMAIL_PASSWORD}
 
 google:
   clientId: ${GOOGLE_CLIENT_ID}
   secretId: ${GOOGLE_SECRET_ID}
 
-secretPsw: ${SECRET_PSW:P@sswOrd123!R@nd0m}
+secretPsw: ${SECRET_PSW}
 
 # AWS S3 Configuration
 aws:
@@ -104,3 +103,4 @@ aws:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
     url-expiration-hours: 24
+

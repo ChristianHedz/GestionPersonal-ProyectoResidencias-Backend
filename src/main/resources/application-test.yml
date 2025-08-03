@@ -1,4 +1,15 @@
 spring:
   sql:
     init:
-      mode: never 
+      mode: never
+
+# JWT Configuration for test environment
+jwt:
+  expiration:
+    minutes: 60
+  secret:
+    key: aG9sYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=
+
+# Default role configuration
+default:
+  role: EMPLOYEE
