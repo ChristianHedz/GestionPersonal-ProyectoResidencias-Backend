@@ -1,0 +1,57 @@
+name: Desplegar en AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main # O la rama que uses para producción, como 'master'
+
+jobs:
+  # --- PRIMER JOB: CONSTRUIR LA APLICACIÓN ---
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Construir proyecto con Maven
+        run: mvn clean package -DskipTests
+
+      # Renombramos el .jar a un nombre fijo para que sea más fácil de usar después
+      - name: Renombrar el artefacto
+        run: mv target/*.jar mi-aplicacion-springboot.jar
+
+      - name: Subir artefacto .jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: mi-aplicacion-springboot
+          path: mi-aplicacion-springboot.jar
+
+  # --- SEGUNDO JOB: DESPLEGAR LA APLICACIÓN ---
+  deploy:
+    # Este job depende de que el job 'build' termine exitosamente
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Paso 1: Descargar el artefacto .jar que subió el job anterior
+      - name: Descargar artefacto .jar
+        uses: actions/download-artifact@v4
+        with:
+          name: mi-aplicacion-springboot
+
+      # Paso 2: Desplegar a AWS Elastic Beanstalk usando una acción del Marketplace
+      - name: Desplegar a AWS Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: 'gestion-personal'       # <-- CAMBIA ESTO
+          environment_name: 'prod'  # <-- CAMBIA ESTO
+          region: 'us-east-1'                     # <-- CAMBIA ESTO (ej. us-east-1)
+          version_label: ${{ github.sha }}
+          deployment_package: mi-aplicacion-springboot.jar

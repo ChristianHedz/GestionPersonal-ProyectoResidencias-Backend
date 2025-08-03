@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.4.8</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.chris.gestionpersonal</groupId>
@@ -261,7 +261,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <excludes>
-                    <!-- <exclude>application-*.yml</exclude> -->
+                     <exclude>application-*.yml</exclude>
                     <exclude>messages.properties</exclude>
                 </excludes>
             </resource>
