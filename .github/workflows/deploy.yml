@@ -23,7 +23,7 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Construir proyecto con Maven Wrapper
-        run: ./mvnw clean package -DskipTests -Pprod
+        run: ./mvnw clean package -DskipTests -P prod
 
       # Renombramos el .jar a un nombre fijo para que sea más fácil de usar después
       - name: Renombrar el artefacto
