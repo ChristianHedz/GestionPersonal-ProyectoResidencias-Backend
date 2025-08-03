@@ -19,8 +19,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Construir proyecto con Maven
-        run: mvn clean package -DskipTests
+      - name: Dar permisos de ejecución al Maven Wrapper
+        run: chmod +x ./mvnw
+
+      - name: Construir proyecto con Maven Wrapper
+        run: ./mvnw clean package -DskipTests -Pprod
 
       # Renombramos el .jar a un nombre fijo para que sea más fácil de usar después
       - name: Renombrar el artefacto
@@ -50,8 +53,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: 'gestion-personal-app'       # <-- CAMBIA ESTO
-          environment_name: 'gestion-personal-env'  # <-- CAMBIA ESTO
-          region: 'us-east-1'                     # <-- CAMBIA ESTO (ej. us-east-1)
+          application_name: 'gestion-personal-app'
+          environment_name: 'gestion-personal-env'
+          region: 'us-east-1'
           version_label: ${{ github.sha }}
           deployment_package: mi-aplicacion-springboot.jar
