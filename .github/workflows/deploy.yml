@@ -50,8 +50,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: 'gestion-personal'       # <-- CAMBIA ESTO
-          environment_name: 'prod'  # <-- CAMBIA ESTO
+          application_name: 'gestion-personal-app'       # <-- CAMBIA ESTO
+          environment_name: 'gestion-personal-env'  # <-- CAMBIA ESTO
           region: 'us-east-1'                     # <-- CAMBIA ESTO (ej. us-east-1)
           version_label: ${{ github.sha }}
           deployment_package: mi-aplicacion-springboot.jar
