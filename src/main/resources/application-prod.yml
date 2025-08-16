@@ -80,6 +80,9 @@ jwt:
     minutes: 60
   secret:
     key: aG9sYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=
+  cookie:
+    secure: true
+    same-site: None
 
 qrcode:
   storage:

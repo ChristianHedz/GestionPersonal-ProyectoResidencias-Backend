@@ -1,5 +1,6 @@
 package com.chris.gestionpersonal.services;
 
+import com.chris.gestionpersonal.config.CookieConfig;
 import com.chris.gestionpersonal.repositories.EmployeeRepository;
 import com.chris.gestionpersonal.repositories.TokenRepository;
 import com.chris.gestionpersonal.exceptions.ResourceNotFoundException;
@@ -34,6 +35,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final TokenRepository tokenRepository;
+    private final CookieConfig cookieConfig;
     private static final String EMAIL = "email";
 
     public AuthResponse login(LoginDTO loginDTO, HttpServletResponse httpResponse ) {
@@ -68,12 +70,7 @@ public class AuthService {
     }
 
     private void addJwtCookie(HttpServletResponse httpResponse, String jwt) {
-        Cookie jwtCookie = new Cookie("jwt", jwt);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false);
-        jwtCookie.setAttribute("SameSite","Lax");
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(60 * 60); // 1 hour in seconds (matching jwt.expiration.minutes)
+        Cookie jwtCookie = cookieConfig.buildJwtCookie(jwt, 60 * 60);
         httpResponse.addCookie(jwtCookie);
     }
 
@@ -117,10 +114,7 @@ public class AuthService {
             tokenRepository.save(token.get());
         }
 
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0); // Expirar inmediatamente
+        Cookie cookie = cookieConfig.buildClearedJwtCookie();
         response.addCookie(cookie);
     }
 

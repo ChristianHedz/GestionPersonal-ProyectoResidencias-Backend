@@ -83,17 +83,20 @@ public class HttpSecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-            "http://127.0.0.1:5500/",
-            "http://127.0.0.1:5173/",
-            "http://localhost:5173/",
-            "http://localhost:4200/",
-            "http://localhost:8081/",
-            "http://gestion-personal-env.eba-mis33s3b.us-east-1.elasticbeanstalk.com/",
-            "https://gestion-personal-env.eba-mis33s3b.us-east-1.elasticbeanstalk.com/"
+            "http://127.0.0.1:5500",
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+            "http://localhost:4200",
+            "http://localhost:8081",
+            "https://www.pasteleriaprimavera.social",
+            "https://gestion-personal-env.eba-mis33s3b.us-east-1.elasticbeanstalk.com"
         ));
-        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // Crítico para cookies
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie")); // Exponer header Set-Cookie
+        configuration.setMaxAge(3600L); // Cache preflight por 1 hora
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

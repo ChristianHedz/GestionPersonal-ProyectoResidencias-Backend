@@ -81,6 +81,9 @@ jwt:
     minutes: 60
   secret:
     key: aG9sYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=
+  cookie:
+    secure: false
+    same-site: Lax
 
 qrcode:
   storage:
