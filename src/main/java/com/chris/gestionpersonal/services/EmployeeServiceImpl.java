@@ -125,6 +125,11 @@ public class EmployeeServiceImpl implements  EmployeeService {
             employee.setPhoto(employeeDTO.getPhoto());
         }
 
+        // Actualizar contraseña si viene en el DTO
+        if (employeeDTO.getPassword() != null && !employeeDTO.getPassword().isEmpty()) {
+            employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
+        }
+
         Status status = statusRepository.findByName(employeeDTO.getStatus())
                 .orElseThrow(() -> new ResourceNotFoundException("status","name",employeeDTO.getStatus()));
         employee.setStatus(status);

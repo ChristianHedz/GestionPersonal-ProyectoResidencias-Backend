@@ -23,6 +23,7 @@ public interface EmployeeMapper {
 
     @Mapping(target = "status", source = "status.name")
     @Mapping(target = "photo", source = "photo")
+    @Mapping(target = "password", ignore = true)
     EmployeeDTO employeeToEmployeeDTO(Employee employee);
 
     @Mapping(target = "role", source = "role.name")
